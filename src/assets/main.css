@@ -1,0 +1,122 @@
+@import './base.css';
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+}
+
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem;
+  }
+}
+
+@font-face {
+  font-family: "Nagbuloe";
+  src: url("@/assets/fonts/NEWnagbuloe-bold.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Nagbuloe Outline";
+  src: url("@/assets/fonts/NEWNagbuloe-ThinOutline.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+button {
+  width: 100%;
+  padding: 0.68rem 1rem; /* 10% skinnier vertically (0.75 * 0.9) */
+  font-family: "Nagbuloe", serif;
+  font-weight: bold;
+  font-size: 1rem;
+  border: 2px solid #ffffff;
+  border-radius: 25px;
+  background: #ffffff;
+  color: #ff6b35;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: 767px) {
+  button {
+    padding: 0.442rem 0.65rem; /* 35% smaller */
+    font-size: 16px; /* Match input font size for consistency */
+    border-width: 1.3px; /* 35% smaller */
+    border-radius: 16px; /* 35% smaller: 25px * 0.65 */
+  }
+}
+
+
+input {
+  width: 100%;
+  padding: 0.68rem 1rem; /* 10% skinnier vertically (0.75 * 0.9) */
+  font-family: "Nagbuloe", serif;
+  font-size: 1rem;
+  border: 2px solid #ffffff;
+  border-radius: 25px;
+  background: #ffffff;
+  color: #000000;
+  margin-bottom: 0;
+}
+
+@media (max-width: 767px) {
+  input {
+    padding: 0.442rem 0.65rem; /* 35% smaller */
+    font-size: 16px; /* Minimum 16px to prevent auto-zoom on mobile */
+    border-width: 1.3px; /* 35% smaller */
+    border-radius: 16px; /* 35% smaller: 25px * 0.65 */
+  }
+}
+
+
+/* Split buttons for "just me" / "plus one" */
+.rsvp-split-button {
+  flex: 1;
+  padding: 0.68rem 1rem;
+  font-family: "Nagbuloe", serif;
+  font-weight: bold;
+  font-size: 1rem;
+  border: 2px solid #ffffff;
+  border-radius: 25px;
+  background: #ff6b35;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: lowercase;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &.selected {
+    background: #ffffff;
+    color: #ff6b35;
+  }
+}
+
+@media (max-width: 767px) {
+  .rsvp-split-button {
+    padding: 0.442rem 0.65rem; /* 35% smaller */
+    font-size: 16px; /* Match input font size for consistency */
+    border-width: 1.3px; /* 35% smaller */
+    border-radius: 16px; /* 35% smaller: 25px * 0.65 */
+  }
+}
