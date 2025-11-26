@@ -1126,8 +1126,10 @@ body {
 
 @media (max-width: 767px) {
   .orange-blurb {
-    top: auto; /* Override top on mobile */
-    bottom: 5%; /* Position from bottom on mobile */
+    top: 75%; /* Center between Gala heading (50%) and bottom (100%) */
+    bottom: auto; /* Override bottom on mobile */
+    transform: translate(-50%, -50%); /* Center the text vertically */
+    font-size: 0.9rem; /* 25% smaller to prevent overlap with Gala heading */
   }
 }
 
