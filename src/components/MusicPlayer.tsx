@@ -82,7 +82,18 @@ const getInitialPosition = (): Position => {
   return defaultPosition()
 }
 
-const MusicPlayer = () => {
+interface MusicPlayerProps {
+  onPlayStateChange?: (isPlaying: boolean) => void
+}
+
+declare global {
+  interface Window {
+    YT: any
+    onYouTubeIframeAPIReady: () => void
+  }
+}
+
+const MusicPlayer = ({ onPlayStateChange }: MusicPlayerProps) => {
   const playerRef = useRef<any>(null)
   const playerContainerRef = useRef<HTMLDivElement>(null)
   const popupRef = useRef<HTMLDivElement>(null)
@@ -90,6 +101,7 @@ const MusicPlayer = () => {
 
   const [isPlaying, setIsPlaying] = useState(false)
   const [hasActivated, setHasActivated] = useState(false)
+  const [shouldPrime, setShouldPrime] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const [isOpen, setIsOpen] = useState(getInitialIsOpen)
   const [currentTrackIndex, setCurrentTrackIndex] = useState(getInitialTrackIndex)
@@ -140,6 +152,7 @@ const MusicPlayer = () => {
               if (event.data === PlayerState.PLAYING) {
                 setIsPlaying(true)
                 setIsBuffering(false)
+                onPlayStateChange?.(true)
               } else if (event.data === PlayerState.BUFFERING) {
                 setIsBuffering(true)
               } else if (
@@ -148,6 +161,7 @@ const MusicPlayer = () => {
               ) {
                 setIsPlaying(false)
                 setIsBuffering(false)
+                onPlayStateChange?.(false)
               }
             },
           },
@@ -179,14 +193,24 @@ const MusicPlayer = () => {
 
     try {
       setIsBuffering(true)
-      playerRef.current.loadVideoById(track.videoId)
+      if (isPlaying) {
+        playerRef.current.loadVideoById(track.videoId)
+      } else {
+        playerRef.current.cueVideoById(track.videoId)
+      }
       playerRef.current.unMute()
-      setIsPlaying(true)
     } catch (error) {
       console.error('Error loading track', error)
       setIsBuffering(false)
+      return
     }
-  }, [currentTrackIndex, isReady])
+
+    const handleReadyTimeout = setTimeout(() => {
+      setIsBuffering(false)
+    }, 250)
+
+    return () => clearTimeout(handleReadyTimeout)
+  }, [currentTrackIndex, isReady, isPlaying])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -218,20 +242,37 @@ const MusicPlayer = () => {
     return () => window.removeEventListener('keydown', handleKeydown)
   }, [isOpen])
 
-  const handleJukeboxClick = async () => {
-    setIsOpen(true)
+  const primePlayer = useCallback(async () => {
+    if (hasActivated || !playerRef.current) {
+      return
+    }
 
-    if (!hasActivated && playerRef.current && isReady) {
+    try {
       setHasActivated(true)
-      try {
-        playerRef.current.mute()
-        await playerRef.current.playVideo()
-        setTimeout(() => {
-          playerRef.current.pauseVideo()
-        }, 150)
-      } catch (error) {
-        console.error('Priming error:', error)
-      }
+      playerRef.current.mute()
+      await playerRef.current.playVideo()
+      await new Promise((resolve) => setTimeout(resolve, 150))
+      playerRef.current.pauseVideo()
+      playerRef.current.seekTo(0)
+      playerRef.current.unMute()
+    } catch (error) {
+      console.error('Priming error:', error)
+    }
+  }, [hasActivated])
+
+  useEffect(() => {
+    if (shouldPrime && isReady) {
+      primePlayer()
+      setShouldPrime(false)
+    }
+  }, [shouldPrime, isReady, primePlayer])
+
+  const handleJukeboxClick = () => {
+    setIsOpen(true)
+    if (isReady) {
+      primePlayer()
+    } else {
+      setShouldPrime(true)
     }
   }
 
@@ -347,62 +388,58 @@ const MusicPlayer = () => {
           style={{ cursor: 'pointer' }}
         />
       </div>
-      {isOpen && (
-        <div
-          className={`jukebox-window ${isDragging ? 'dragging' : ''}`}
-          ref={popupRef}
-          onPointerDown={handlePointerDown}
-          style={{ top: position.y, left: position.x, right: 'auto' }}
-        >
-          <div className="jukebox-window-header">
-            <span className="jukebox-window-title">gala radio</span>
+      <div
+        className={`jukebox-window ${isDragging ? 'dragging' : ''}`}
+        ref={popupRef}
+        onPointerDown={handlePointerDown}
+        style={{
+          top: position.y,
+          left: position.x,
+          right: 'auto',
+          opacity: isOpen ? 1 : 0,
+          pointerEvents: isOpen ? 'auto' : 'none',
+          visibility: isOpen ? 'visible' : 'hidden',
+          transition: 'opacity 0.3s ease',
+        }}
+        aria-hidden={!isOpen}
+      >
+        <div className="jukebox-window-header">
+          <span className="jukebox-window-title">gala radio</span>
+          <button
+            type="button"
+            className="jukebox-window-close"
+            onClick={() => setIsOpen(false)}
+          >
+            ×
+          </button>
+        </div>
+        <div className="jukebox-window-body">
+          <div className="jukebox-video-frame">
+            <div ref={playerContainerRef} className="jukebox-video-iframe" />
+          </div>
+          <div className="jukebox-now-playing">
+            <span className="jukebox-label">now playing</span>
+            <span className="jukebox-track-title">{currentTrack.title}</span>
+            {isBuffering && <span className="jukebox-buffering">loading…</span>}
+          </div>
+          <div className="jukebox-controls-row">
+            <button type="button" className="jukebox-small-button" onClick={handlePrev}>
+              prev
+            </button>
             <button
               type="button"
-              className="jukebox-window-close"
-              onClick={() => setIsOpen(false)}
+              className="jukebox-small-button"
+              onClick={togglePlayback}
+              disabled={isBuffering}
             >
-              ×
+              {isBuffering ? 'loading' : isPlaying ? 'pause' : 'play'}
+            </button>
+            <button type="button" className="jukebox-small-button" onClick={handleNext}>
+              next
             </button>
           </div>
-          <div className="jukebox-window-body">
-            <div className="jukebox-video-frame">
-              <div
-                ref={playerContainerRef}
-                className="jukebox-video-iframe"
-              />
-            </div>
-            <div className="jukebox-now-playing">
-              <span className="jukebox-label">now playing</span>
-              <span className="jukebox-track-title">{currentTrack.title}</span>
-              {isBuffering && <span className="jukebox-buffering">loading…</span>}
-            </div>
-            <div className="jukebox-controls-row">
-              <button
-                type="button"
-                className="jukebox-small-button"
-                onClick={handlePrev}
-              >
-                prev
-              </button>
-              <button
-                type="button"
-                className="jukebox-small-button"
-                onClick={togglePlayback}
-                disabled={isBuffering}
-              >
-                {isBuffering ? 'loading' : isPlaying ? 'pause' : 'play'}
-              </button>
-              <button
-                type="button"
-                className="jukebox-small-button"
-                onClick={handleNext}
-              >
-                next
-              </button>
-            </div>
-          </div>
         </div>
-      )}
+      </div>
     </>
   )
 }

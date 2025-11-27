@@ -2,14 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 
 import { supabase } from '@/api/supabase'
-import CreateRSVP from '@/components/CreateRSVP'
-import EditRSVP from '@/components/EditRSVP'
 import GuestList from '@/components/GuestList'
 import MusicPlayer from '@/components/MusicPlayer'
-import PhoneSignIn from '@/components/PhoneSignIn'
-import type { Guest, GuestFormPayload } from '@/types/LibraryRecordInterfaces'
+import RSVPForm from '@/components/RSVPForm'
+import type { Guest } from '@/types/LibraryRecordInterfaces'
+import { normalizePhone } from '@/utils/phone'
 
-type ActivePanel = 'closed' | 'signIn' | 'create' | 'edit'
+type ActivePanel = 'closed' | 'rsvp'
 
 const RSVP_CAPACITY = 200
 
@@ -21,21 +20,26 @@ const App = () => {
   const [session, setSession] = useState<Session | null>(null)
   const [activePanel, setActivePanel] = useState<ActivePanel>('closed')
   const [loadingGuests, setLoadingGuests] = useState(true)
-  const [updateError, setUpdateError] = useState('')
   const [scrollY, setScrollY] = useState(0)
   const [viewportHeight, setViewportHeight] = useState(initialViewport)
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false)
 
   const currentGuest = useMemo(() => {
     if (!session) {
       return null
     }
-    return guests.find((guest) => guest.phone === session.user.phone) ?? null
+    const normalizedSessionPhone = normalizePhone(session.user.phone)
+    return (
+      guests.find(
+        (guest) => normalizePhone(guest.phone) === normalizedSessionPhone,
+      ) ?? null
+    )
   }, [guests, session])
 
   const fetchGuests = useCallback(async () => {
     setLoadingGuests(true)
     const { data, error } = await supabase
-      .from<Guest>('guests')
+      .from('guests')
       .select('*')
       .order('name')
 
@@ -99,99 +103,35 @@ const App = () => {
     }
   }, [])
 
-  const handleOpenPanel = useCallback(async () => {
-    if (activePanel !== 'closed') {
+  const ensureLatestSession = useCallback(async () => {
+    const {
+      data: { session: latestSession },
+    } = await supabase.auth.getSession()
+    setSession(latestSession)
+    return latestSession
+  }, [])
+
+  const handleTogglePanel = useCallback(async () => {
+    if (activePanel === 'rsvp') {
       setActivePanel('closed')
       return
     }
+    await ensureLatestSession()
+    setActivePanel('rsvp')
+  }, [activePanel, ensureLatestSession])
 
-    const {
-      data: { session: latestSession },
-    } = await supabase.auth.getSession()
-    setSession(latestSession)
-
-    if (!latestSession) {
-      setActivePanel('signIn')
+  const handleInlineEdit = useCallback(async () => {
+    if (activePanel === 'rsvp') {
       return
     }
+    await ensureLatestSession()
+    setActivePanel('rsvp')
+  }, [activePanel, ensureLatestSession])
 
-    const nextGuest =
-      guests.find((guest) => guest.phone === latestSession.user.phone) ?? null
-    setActivePanel(nextGuest ? 'edit' : 'create')
-  }, [activePanel, guests])
-
-  const handleSignInSuccess = useCallback(async () => {
-    const updatedGuests = await fetchGuests()
-    const {
-      data: { session: latestSession },
-    } = await supabase.auth.getSession()
-    setSession(latestSession)
-
-    if (!latestSession) {
-      setActivePanel('signIn')
-      return
-    }
-
-    const hasRsvp =
-      updatedGuests.find((guest) => guest.phone === latestSession.user.phone) ??
-      null
-    setActivePanel(hasRsvp ? 'edit' : 'create')
+  const handleRsvpChange = useCallback(async () => {
+    await fetchGuests()
+    setActivePanel('closed')
   }, [fetchGuests])
-
-  const handleSubmitRsvp = useCallback(
-    async (payload: GuestFormPayload) => {
-      const {
-        data: { session: activeSession },
-      } = await supabase.auth.getSession()
-
-      if (!activeSession) {
-        setActivePanel('signIn')
-        return
-      }
-
-      const { error } = await supabase.from<Guest>('guests').insert([
-        {
-          ...payload,
-          phone: activeSession.user.phone,
-        },
-      ])
-
-      if (error) {
-        console.error('Unable to create RSVP', error)
-        return
-      }
-
-      await fetchGuests()
-      setActivePanel('closed')
-    },
-    [fetchGuests],
-  )
-
-  const handleUpdateRsvp = useCallback(
-    async (updatedGuest: Guest) => {
-      const { error } = await supabase
-        .from<Guest>('guests')
-        .update({
-          name: updatedGuest.name,
-          guest_count: updatedGuest.guest_count,
-          email: updatedGuest.email,
-          paid: updatedGuest.paid,
-          verified: updatedGuest.verified,
-        })
-        .eq('phone', updatedGuest.phone)
-
-      if (error) {
-        console.error('Unable to update RSVP', error)
-        setUpdateError(error.message)
-        return
-      }
-
-      setUpdateError('')
-      await fetchGuests()
-      setActivePanel('closed')
-    },
-    [fetchGuests],
-  )
 
   const totalGuests = useMemo(
     () => guests.reduce((acc, guest) => acc + (guest.guest_count ?? 0), 0),
@@ -226,13 +166,13 @@ const App = () => {
 
   return (
     <main>
-      <MusicPlayer />
+      <MusicPlayer onPlayStateChange={setIsMusicPlaying} />
 
       <div className="hero">
         <div className={`small-text ${onOrange ? 'on-orange' : ''}`}>
           The fourth annual edition of
         </div>
-        <h1 className={`main-title ${onOrange ? 'on-orange' : ''}`}>
+        <h1 className={`main-title ${onOrange ? 'on-orange' : ''} ${isMusicPlaying ? 'music-playing' : ''}`}>
           <span className="word">
             <span>t</span>
             <span>h</span>
@@ -290,14 +230,17 @@ const App = () => {
                   />
                 </svg>
               </span>
-              <a
-                href="https://www.greenpointloft.com"
-                target="_blank"
-                rel="noreferrer"
-                className="detail-link"
-              >
-                The Greenpoint Loft
-              </a>
+              <div className="detail-text">
+                <span className="detail-label">venue</span>
+                <a
+                  href="https://www.greenpointloft.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="detail-link"
+                >
+                  The Greenpoint Loft
+                </a>
+              </div>
             </div>
 
             <div className="detail-item">
@@ -318,40 +261,12 @@ const App = () => {
                   />
                 </svg>
               </span>
-              <span className="detail-text">early birds! $125 before Dec. 10th</span>
+              <span className="detail-text">
+                <span className="detail-label">tickets</span>
+                $125 before Dec. 10th
+              </span>
             </div>
 
-            <div className="detail-item">
-              <span className="detail-icon">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <circle cx="6.5" cy="9" r="2" fill="white" />
-                  <path
-                    d="M2 19c0-2 1.5-3.5 3.5-3.5s3.5 1.5 3.5 3.5"
-                    stroke="white"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    fill="none"
-                  />
-                  <circle cx="17.5" cy="9" r="2" fill="white" />
-                  <path
-                    d="M13 19c0-2 1.5-3.5 3.5-3.5s3.5 1.5 3.5 3.5"
-                    stroke="white"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    fill="none"
-                  />
-                </svg>
-              </span>
-              <span className="detail-text">
-                ({spotsRemaining}/{RSVP_CAPACITY}) spots left
-              </span>
-            </div>
           </div>
 
           <div className="details-paragraph">
@@ -393,30 +308,27 @@ const App = () => {
             className={`third-page-rsvp ${
               thirdSectionState.revealButton ? 'visible' : ''
             }`}
-            onClick={handleOpenPanel}
+            onClick={handleTogglePanel}
           >
             {activePanel === 'closed' ? 'RSVP' : 'Close'}
           </button>
 
-          {activePanel === 'signIn' && (
-            <PhoneSignIn onVerified={handleSignInSuccess} />
-          )}
-
-          {activePanel === 'create' && (
-            <CreateRSVP onSubmit={handleSubmitRsvp} />
-          )}
-
-          {activePanel === 'edit' && currentGuest && (
-            <EditRSVP
-              guest={currentGuest}
-              error={updateError}
-              onUpdate={handleUpdateRsvp}
-            />
-          )}
-
-          {activePanel === 'closed' && (
-            <GuestList guests={guests} isLoading={loadingGuests} />
-          )}
+          <div className="third-section-right-content">
+            {activePanel === 'rsvp' ? (
+              <RSVPForm
+                guest={currentGuest}
+                onSuccess={handleRsvpChange}
+                onDelete={handleRsvpChange}
+              />
+            ) : (
+              <GuestList
+                guests={guests}
+                isLoading={loadingGuests}
+                currentUserPhone={normalizePhone(session?.user.phone ?? null)}
+                onEdit={handleInlineEdit}
+              />
+            )}
+          </div>
         </div>
       </section>
     </main>
