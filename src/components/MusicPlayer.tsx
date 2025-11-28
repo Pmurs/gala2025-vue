@@ -16,6 +16,11 @@ type Track = {
 }
 
 const tracks: Track[] = [
+  { id: 'bad-decisions', title: 'Bad Decisions - The Strokes', videoId: '5fbZTnZDvPA' },
+  { id: 'chaise-longue', title: 'Chaise Longue - Wet Leg', videoId: 'Zd9jeJk2UHQ' },
+  { id: 'i-melt-with-you', title: 'I Melt With You - Modern English', videoId: 'LuN6gs0AJls' },
+  { id: 'another-brick', title: 'Another Brick in the Wall - Pink Floyd', videoId: 'bZwxTX2pWmw' },
+  { id: 'my-hero', title: 'My Hero - Foo Fighters', videoId: 'EqWRaAF6_WY' },
   { id: 'under-cover', title: 'Under Cover of Darkness - The Strokes', videoId: '_l09H-3zzgA' },
   { id: 'pinball-wizard', title: 'Pinball Wizard - The Who', videoId: 'hHc7bR6y06M' },
   { id: 'born-to-run', title: 'Born to Run - Bruce Springsteen', videoId: 'IxuThNgl3YA' },

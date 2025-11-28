@@ -344,23 +344,25 @@ const App = () => {
             </p>
             <h3 className="details-subheader">What can you expect?</h3>
             <ul className="details-list">
-              <li>Open bar all night</li>
-              <li>Small bites by Icelandic Michelin Man Paul Murray</li>
-              <li>Two live bands + a DJ set</li>
-              <li>Roof deck overlooking the East River</li>
+              <li><strong>Open bar</strong> all night</li>
+              <li><strong>Small bites</strong> by Icelandic Michelin Man Paul Murray</li>
+              <li><strong>Two live bands</strong> + a DJ set</li>
+              <li><strong>Roof deck</strong> overlooking the East River</li>
               <li>
                 <a
                   href="https://www.instagram.com/betoscarnitas/?hl=en"
                   target="_blank"
                   rel="noreferrer"
                   className="orange-link"
-                >Late-night tacos</a>{' '}
+                >
+                  <strong>Late-night tacos</strong>
+                </a>{' '}
                 made onsite
               </li>
             </ul>
             <p className="details-paragraph-spacing">
               If the ticket price is a barrier, please reach out to Max at
-              603-494-0576. We want you there! Discounts are available for anyone
+              <strong> 603-494-0576</strong>. We want you there! Discounts are available for anyone
               willing to lend a hand.
             </p>
             <p className="details-paragraph-spacing">
