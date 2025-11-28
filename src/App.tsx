@@ -328,10 +328,31 @@ const App = () => {
                   />
                 </svg>
               </span>
-              <span className="detail-text">
+              <div className="detail-text" style={{ width: '100%' }}>
                 <span className="detail-label">tickets</span>
-                $125 before Dec. 10th
-              </span>
+                <div className="pricing-tiers">
+                  <div className="pricing-tier">
+                    <span className="pricing-date">Until Dec 6</span>
+                    <span className="pricing-separator" />
+                    <span className="pricing-amount">$125</span>
+                  </div>
+                  <div className="pricing-tier">
+                    <span className="pricing-date">Until Dec 28</span>
+                    <span className="pricing-separator" />
+                    <span className="pricing-amount">$150</span>
+                  </div>
+                  <div className="pricing-tier">
+                    <span className="pricing-date">Dec 28</span>
+                    <span className="pricing-separator" />
+                    <span className="pricing-amount">$185</span>
+                  </div>
+                  <div className="pricing-tier">
+                    <span className="pricing-date">Dec 31</span>
+                    <span className="pricing-separator" />
+                    <span className="pricing-amount">$200</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
           </div>
@@ -344,20 +365,38 @@ const App = () => {
             </p>
             <h3 className="details-subheader">What can you expect?</h3>
             <ul className="details-list">
-              <li><strong>Open bar</strong> all night</li>
-              <li><strong>Small bites</strong> by Icelandic Michelin Man Paul Murray</li>
-              <li><strong>Two live bands</strong> + a DJ set</li>
-              <li><strong>Roof deck</strong> overlooking the East River</li>
               <li>
-                <a
-                  href="https://www.instagram.com/betoscarnitas/?hl=en"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="orange-link"
-                >
-                  <strong>Late-night tacos</strong>
-                </a>{' '}
-                made onsite
+                <span>
+                  <strong>Open bar</strong> all night
+                </span>
+              </li>
+              <li>
+                <span>
+                  <strong>Small bites</strong> by Icelandic Michelin Man Paul Murray
+                </span>
+              </li>
+              <li>
+                <span>
+                  <strong>Two live bands</strong> + a DJ set
+                </span>
+              </li>
+              <li>
+                <span>
+                  <strong>Roof deck</strong> overlooking the East River
+                </span>
+              </li>
+              <li>
+                <span>
+                  <a
+                    href="https://www.instagram.com/betoscarnitas/?hl=en"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="orange-link"
+                  >
+                    <strong>Late-night tacos</strong>
+                  </a>{' '}
+                  made onsite
+                </span>
               </li>
             </ul>
             <p className="details-paragraph-spacing">

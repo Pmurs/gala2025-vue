@@ -492,6 +492,49 @@ select:focus {
   font-weight: bold;
 }
 
+.pricing-tiers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+  width: 100%;
+}
+
+.pricing-tier {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: "Nagbuloe", serif;
+  font-size: 1.1rem;
+  color: #ffffff;
+  width: 100%;
+  line-height: 1.1;
+}
+
+.pricing-tier.past {
+  opacity: 0.6;
+  text-decoration: line-through;
+  text-decoration-color: rgba(255, 255, 255, 0.6);
+}
+
+.pricing-date {
+  font-size: 1rem;
+  opacity: 0.95;
+  white-space: nowrap;
+}
+
+.pricing-separator {
+  flex: 1;
+  border-bottom: 2px dotted rgba(255, 255, 255, 0.35);
+  margin: 0 0.6rem;
+  position: relative;
+  top: -4px;
+}
+
+.pricing-amount {
+  font-weight: bold;
+}
+
 .detail-label {
   font-family: "Nagbuloe", serif;
   font-size: 0.68rem;
@@ -571,7 +614,7 @@ select:focus {
 .details-list li {
   line-height: 1.5;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.6rem;
   margin-bottom: 0;
 }
@@ -584,6 +627,8 @@ select:focus {
   position: relative;
   top: -1px;
   letter-spacing: 0.05em;
+  flex-shrink: 0;
+  line-height: 1.5;
 }
 
 .party-details-header {
