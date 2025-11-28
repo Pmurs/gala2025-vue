@@ -155,6 +155,105 @@ select:focus {
   color: #ffffff;
 }
 
+@keyframes fontFlicker {
+  0% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  1% {
+    font-family: "Nagbuloe", serif;
+  }
+  2% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  3% {
+    font-family: "Nagbuloe", serif;
+  }
+  4% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  5% {
+    font-family: "Nagbuloe", serif;
+  }
+  6% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  7% {
+    font-family: "Nagbuloe", serif;
+  }
+  8% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  9% {
+    font-family: "Nagbuloe", serif;
+  }
+  12% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  13% {
+    font-family: "Nagbuloe", serif;
+  }
+  14% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  18% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  19% {
+    font-family: "Nagbuloe", serif;
+  }
+  21% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  30% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  32% {
+    font-family: "Nagbuloe", serif;
+  }
+  35% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  50% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  52% {
+    font-family: "Nagbuloe", serif;
+  }
+  53% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  54% {
+    font-family: "Nagbuloe", serif;
+  }
+  55% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  70% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  72% {
+    font-family: "Nagbuloe", serif;
+  }
+  74% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  75% {
+    font-family: "Nagbuloe", serif;
+  }
+  85% {
+    font-family: "Nagbuloe", serif;
+  }
+  86% {
+    font-family: "Nagbuloe Outline", serif;
+  }
+  87% {
+    font-family: "Nagbuloe", serif;
+  }
+  100% {
+    font-family: "Nagbuloe", serif;
+  }
+}
+
 .main-title {
   font-family: "Nagbuloe", serif;
   font-size: clamp(4rem, 15vw, 12rem);
@@ -166,6 +265,7 @@ select:focus {
   transition: color 0.3s ease;
   display: inline-block;
   white-space: nowrap;
+  animation: fontFlicker 3s steps(1) backwards;
 }
 
 .main-title.on-orange {
@@ -266,8 +366,8 @@ select:focus {
   bottom: auto;
   left: 50%;
   transform: translateX(-50%);
-  font-family: "Nagbuloe", serif;
-  font-weight: bold;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 840;
   font-size: 1.2rem;
   color: #000;
   text-align: center;
@@ -345,13 +445,22 @@ select:focus {
   max-width: 100%;
 }
 
+.guest-list-header {
+  font-family: "Nagbuloe", serif;
+  color: #ffffff;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+}
+
 .detail-text,
 .detail-link,
-.guest-list-header,
 .third-section-left p,
 .third-section-left ul,
 .third-section-left li {
-  font-family: "Nagbuloe", serif;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 840;
   color: #ffffff;
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -368,10 +477,11 @@ select:focus {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  font-weight: 600;
+  font-weight: bold;
 }
 
 .detail-label {
+  font-family: "Nagbuloe", serif;
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.26em;
@@ -406,10 +516,10 @@ select:focus {
 }
 
 .details-subheader {
-  font-family: "Nagbuloe", serif;
+  font-family: "DM Sans", sans-serif;
   color: #ffffff;
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 840;
   margin: 0.35rem 0 0.85rem;
   text-align: left;
   letter-spacing: 0.02em;
@@ -425,7 +535,7 @@ select:focus {
 }
 
 .details-paragraph p {
-  font-weight: 500;
+  font-weight: bold;
   line-height: 1.6;
   letter-spacing: 0.005em;
   font-size: 0.96rem;
@@ -966,7 +1076,8 @@ select:focus {
 
 @media (min-width: 768px) {
   .jukebox-window {
-    width: 340px;
+    width: min(640px, calc(100% - 4rem));
+    padding: 1.2rem 1.2rem 1.4rem;
   }
 }
 
@@ -1049,9 +1160,59 @@ select:focus {
   background: rgba(0, 0, 0, 0.2);
 }
 
+.jukebox-video-static {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.45) 100%);
+  mix-blend-mode: screen;
+  opacity: 0.85;
+  animation: staticNoise 0.4s steps(6) infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.jukebox-video-static::before,
+.jukebox-video-static::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.05) 0,
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.3;
+}
+
+.jukebox-video-static::after {
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0,
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  opacity: 0.25;
+  mix-blend-mode: soft-light;
+}
+
+.jukebox-video-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  cursor: default;
+}
+
+.jukebox-window.dragging .jukebox-video-shield {
+  cursor: grabbing;
+}
+
 .jukebox-video-iframe {
   position: absolute;
   inset: 0;
+  z-index: 1;
 }
 
 .jukebox-video-iframe iframe {
@@ -1064,11 +1225,127 @@ select:focus {
   object-fit: cover;
 }
 
+@keyframes staticNoise {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-2%, 1%);
+  }
+  50% {
+    transform: translate(1%, -1%);
+  }
+  75% {
+    transform: translate(-1%, 2%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
 .jukebox-controls-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.35rem;
+}
+
+/* Icon-only buttons */
+.jukebox-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  position: relative;
+}
+
+/* Previous icon (skip back - double left triangles) */
+.prev-icon {
+  width: 14px;
+  height: 12px;
+  position: relative;
+  display: inline-block;
+}
+
+.prev-icon::before,
+.prev-icon::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-right: 6px solid #ff6b35;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+
+.prev-icon::before {
+  left: 0;
+}
+
+.prev-icon::after {
+  left: 6px;
+}
+
+/* Next icon (skip forward - double right triangles) */
+.next-icon {
+  width: 14px;
+  height: 12px;
+  position: relative;
+  display: inline-block;
+}
+
+.next-icon::before,
+.next-icon::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 6px solid #ff6b35;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+
+.next-icon::before {
+  left: 0;
+}
+
+.next-icon::after {
+  left: 6px;
+}
+
+/* Play icon (single right triangle) */
+.play-icon-jukebox {
+  width: 0;
+  height: 0;
+  border-left: 10px solid #ff6b35;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  margin-left: 2px;
+}
+
+/* Pause icon (two vertical bars) */
+.pause-icon-jukebox {
+  width: 12px;
+  height: 14px;
+  position: relative;
+  display: inline-block;
+}
+
+.pause-icon-jukebox::before,
+.pause-icon-jukebox::after {
+  content: '';
+  position: absolute;
+  width: 3px;
+  height: 14px;
+  background-color: #ff6b35;
+}
+
+.pause-icon-jukebox::before {
+  left: 0;
+}
+
+.pause-icon-jukebox::after {
+  right: 0;
 }
 
 .jukebox-icon-button {

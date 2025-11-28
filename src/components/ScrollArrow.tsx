@@ -2,6 +2,16 @@ import { useEffect, useState } from 'react'
 
 const ScrollArrow = () => {
   const [visible, setVisible] = useState(true)
+  const [hasFlickered, setHasFlickered] = useState(false)
+
+  useEffect(() => {
+    if (visible && !hasFlickered) {
+      const timer = setTimeout(() => {
+        setHasFlickered(true)
+      }, 3000) // Match animation duration
+      return () => clearTimeout(timer)
+    }
+  }, [visible, hasFlickered])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +26,12 @@ const ScrollArrow = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  const animation = visible
+    ? hasFlickered
+      ? 'pulse 0.8s ease-in-out infinite'
+      : 'arrowFlicker 3s steps(1) forwards, pulse 0.8s ease-in-out infinite 3s'
+    : 'none'
+
   return (
     <div
       style={{
@@ -27,9 +43,7 @@ const ScrollArrow = () => {
         transition: 'opacity 0.3s ease',
         pointerEvents: 'none',
         zIndex: 90,
-        animation: visible
-          ? 'entrance 2s ease-out forwards, pulse 0.5s ease-in-out infinite 2s'
-          : 'none',
+        animation,
         color: '#000' // Default to black for contrast on orange/white? Wait, first page is white with orange text? No, hero has white background?
         // Let's check: Hero is on white or orange?
         // App.tsx: <div className="hero">...</div>
@@ -57,9 +71,39 @@ const ScrollArrow = () => {
       </svg>
       <style>
         {`
-          @keyframes entrance {
-            from { opacity: 0; transform: translate(-50%, 10px); }
-            to { opacity: 1; transform: translate(-50%, 0); }
+          @keyframes arrowFlicker {
+            0% { opacity: 0; }
+            1% { opacity: 1; }
+            2% { opacity: 0; }
+            3% { opacity: 1; }
+            4% { opacity: 0; }
+            5% { opacity: 1; }
+            6% { opacity: 0; }
+            7% { opacity: 1; }
+            8% { opacity: 0; }
+            9% { opacity: 1; }
+            12% { opacity: 0; }
+            13% { opacity: 1; }
+            14% { opacity: 0; }
+            18% { opacity: 0; }
+            19% { opacity: 1; }
+            21% { opacity: 0; }
+            30% { opacity: 0; }
+            32% { opacity: 1; }
+            35% { opacity: 0; }
+            50% { opacity: 0; }
+            52% { opacity: 1; }
+            53% { opacity: 0; }
+            54% { opacity: 1; }
+            55% { opacity: 0; }
+            70% { opacity: 0; }
+            72% { opacity: 1; }
+            74% { opacity: 0; }
+            75% { opacity: 1; }
+            85% { opacity: 1; }
+            86% { opacity: 0; }
+            87% { opacity: 1; }
+            100% { opacity: 1; }
           }
           @keyframes pulse {
             0% { transform: translate(-50%, 0) scale(1); }

@@ -415,6 +415,10 @@ const MusicPlayer = ({ onPlayStateChange }: MusicPlayerProps) => {
         </div>
         <div className="jukebox-window-body">
           <div className="jukebox-video-frame">
+            {!isPlaying && (
+              <div className="jukebox-video-static" aria-hidden="true" />
+            )}
+            <div className="jukebox-video-shield" aria-hidden="true" />
             <div ref={playerContainerRef} className="jukebox-video-iframe" />
           </div>
           <div className="jukebox-now-playing">
@@ -423,19 +427,36 @@ const MusicPlayer = ({ onPlayStateChange }: MusicPlayerProps) => {
             {isBuffering && <span className="jukebox-buffering">loading…</span>}
           </div>
           <div className="jukebox-controls-row">
-            <button type="button" className="jukebox-small-button" onClick={handlePrev}>
-              prev
+            <button 
+              type="button" 
+              className="jukebox-small-button jukebox-icon-btn" 
+              onClick={handlePrev}
+              aria-label="Previous track"
+            >
+              <span className="prev-icon" aria-hidden="true" />
             </button>
             <button
               type="button"
-              className="jukebox-small-button"
+              className="jukebox-small-button jukebox-icon-btn"
               onClick={togglePlayback}
               disabled={isBuffering}
+              aria-label={isPlaying ? 'Pause' : 'Play'}
             >
-              {isBuffering ? 'loading' : isPlaying ? 'pause' : 'play'}
+              {isBuffering ? (
+                <span style={{ fontSize: '0.75rem' }}>loading</span>
+              ) : isPlaying ? (
+                <span className="pause-icon-jukebox" aria-hidden="true" />
+              ) : (
+                <span className="play-icon-jukebox" aria-hidden="true" />
+              )}
             </button>
-            <button type="button" className="jukebox-small-button" onClick={handleNext}>
-              next
+            <button 
+              type="button" 
+              className="jukebox-small-button jukebox-icon-btn" 
+              onClick={handleNext}
+              aria-label="Next track"
+            >
+              <span className="next-icon" aria-hidden="true" />
             </button>
           </div>
         </div>
