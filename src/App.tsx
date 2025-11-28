@@ -5,6 +5,7 @@ import { supabase } from '@/api/supabase'
 import GuestList from '@/components/GuestList'
 import MusicPlayer from '@/components/MusicPlayer'
 import RSVPForm from '@/components/RSVPForm'
+import ScrollArrow from '@/components/ScrollArrow'
 import type { Guest } from '@/types/LibraryRecordInterfaces'
 import { normalizePhone } from '@/utils/phone'
 
@@ -145,9 +146,25 @@ const App = () => {
     -Math.min(scrollY, viewportHeight),
   )
 
+  // Add this effect to update the browser status bar and overscroll color
+  useEffect(() => {
+    const themeColor = onOrange ? '#ff6b35' : '#ffffff'
+
+    // 1. Update meta theme-color for browser UI (Status Bar)
+    let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement
+    if (!meta) {
+      meta = document.createElement('meta')
+      meta.name = 'theme-color'
+      document.head.appendChild(meta)
+    }
+    meta.setAttribute('content', themeColor)
+
+    // 2. Update body background for overscroll areas (Rubber banding)
+    document.body.style.backgroundColor = themeColor
+  }, [onOrange])
+
   const thirdSectionState = useMemo(() => {
-    const orangeEnd = viewportHeight * 2
-    if (scrollY < orangeEnd) {
+    if (viewportHeight === 0) {
       return {
         translate: 100,
         isScrollable: false,
@@ -155,8 +172,20 @@ const App = () => {
       }
     }
 
-    const scrollDistance = scrollY - orangeEnd
-    const progress = Math.min(1, scrollDistance / viewportHeight)
+    const orangeStart = viewportHeight
+    const revealRange = viewportHeight
+    
+    if (scrollY < orangeStart) {
+      return {
+        translate: 100,
+        isScrollable: false,
+        revealButton: false,
+      }
+    }
+
+    const scrollDistance = scrollY - orangeStart
+    const progress = Math.min(1, scrollDistance / revealRange)
+
     return {
       translate: 100 - progress * 100,
       isScrollable: progress >= 1,
@@ -164,9 +193,22 @@ const App = () => {
     }
   }, [scrollY, viewportHeight])
 
+  useEffect(() => {
+    if (!import.meta.env.DEV) {
+      return
+    }
+    console.debug('scroll-sync', {
+      scrollY,
+      viewportHeight,
+      onOrange,
+      thirdSectionTranslate: thirdSectionState.translate,
+    })
+  }, [scrollY, viewportHeight, onOrange, thirdSectionState.translate])
+
   return (
     <main>
       <MusicPlayer onPlayStateChange={setIsMusicPlaying} />
+      <ScrollArrow />
 
       <div className="hero">
         <div className={`small-text ${onOrange ? 'on-orange' : ''}`}>
@@ -270,35 +312,37 @@ const App = () => {
           </div>
 
           <div className="details-paragraph">
+            <p className="details-paragraph-spacing">
+              If you're new: this is a party we throw with friends, for friends.
+              Some of us cook, some play music, others help organize, decorate, you
+              name it.
+            </p>
             <h3 className="details-subheader">What can you expect?</h3>
             <ul className="details-list">
+              <li>Open bar all night</li>
+              <li>Small bites by Icelandic Michelin Man Paul Murray</li>
+              <li>Two live bands + a DJ set</li>
+              <li>Roof deck overlooking the East River</li>
               <li>
-                Same high quality food and cocktails (Open bar all night, small
-                bites til midnight, handrolled tacos til 3)
+                <a
+                  href="https://www.instagram.com/betoscarnitas/?hl=en"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="orange-link"
+                >
+                  Late-night tacos
+                </a>{' '}
+                made onsite
               </li>
-              <li>2 live bands + a DJ set</li>
-              <li>Roof deck overlooking the east river</li>
             </ul>
             <p className="details-paragraph-spacing">
-              If you're new, this is a party we throw with friends, for friends:
-              some of us make the food, others play music, organize, decorate, you
-              name it. If ticket price is a barrier for you, please reach out at +1
-              603-494-0576! We want to see you there, and can offer discounts for
-              anyone willing to volunteer.
+              If the ticket price is a barrier, please reach out to Max at
+              603-494-0576. We want you there! Discounts are available for anyone
+              willing to lend a hand.
             </p>
             <p className="details-paragraph-spacing">
-              Lastly, as always, invite your friends! The whole point of this is to
-              combine crowds, and it's more fun with them there. see you NYE. If you
-              want to check out the venue, link{' '}
-              <a
-                href="https://www.instagram.com/greenpoint_loft/"
-                target="_blank"
-                rel="noreferrer"
-                className="orange-link"
-              >
-                here
-              </a>
-              .
+              And as always: invite your friends. The whole point of this is to
+              combine crowds, and it's more fun with them there!
             </p>
           </div>
         </div>
@@ -317,6 +361,7 @@ const App = () => {
             {activePanel === 'rsvp' ? (
               <RSVPForm
                 guest={currentGuest}
+                sessionPhone={normalizePhone(session?.user.phone ?? '')}
                 onSuccess={handleRsvpChange}
                 onDelete={handleRsvpChange}
               />

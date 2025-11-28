@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { supabase } from '@/api/supabase'
 import type { Guest } from '@/types/LibraryRecordInterfaces'
@@ -6,11 +6,12 @@ import { normalizePhone } from '@/utils/phone'
 
 interface RSVPFormProps {
   guest: Guest | null
+  sessionPhone?: string | null
   onSuccess: () => Promise<void> | void
   onDelete?: () => Promise<void> | void
 }
 
-type Step = 'details' | 'verify' | 'payment' | 'confirm'
+type Step = 'login' | 'otp' | 'details' | 'payment' | 'confirm'
 
 type GuestPayload = {
   name: string
@@ -23,58 +24,167 @@ type GuestPayload = {
 
 const VENMO_HANDLE = 'maxheald'
 
-const RSVPForm = ({ guest, onSuccess, onDelete }: RSVPFormProps) => {
-  const isEditing = Boolean(guest)
-  const [step, setStep] = useState<Step>('details')
+const COUNTRY_CODES = [
+  { value: '+1', label: '🇺🇸 USA +1' },
+  { value: '+44', label: '🇬🇧 GBR +44' },
+  { value: '+33', label: '🇫🇷 FRA +33' },
+  { value: '+61', label: '🇦🇺 AUS +61' },
+  { value: '+91', label: '🇮🇳 IND +91' },
+  { value: '+86', label: '🇨🇳 CHN +86' },
+  { value: '+49', label: '🇩🇪 DEU +49' },
+  { value: '+81', label: '🇯🇵 JPN +81' },
+  { value: '+55', label: '🇧🇷 BRA +55' },
+  { value: '+52', label: '🇲🇽 MEX +52' },
+  { value: '+7', label: '🇷🇺 RUS +7' },
+  { value: '+82', label: '🇰🇷 KOR +82' },
+  { value: '+31', label: '🇳🇱 NLD +31' },
+  { value: '+46', label: '🇸🇪 SWE +46' },
+  { value: '+41', label: '🇨🇭 CHE +41' },
+  { value: '+48', label: '🇵🇱 POL +48' },
+  { value: '+32', label: '🇧🇪 BEL +32' },
+  { value: '+43', label: '🇦🇹 AUT +43' },
+  { value: '+47', label: '🇳🇴 NOR +47' },
+  { value: '+45', label: '🇩🇰 DNK +45' },
+  { value: '+358', label: '🇫🇮 FIN +358' },
+  { value: '+353', label: '🇮🇪 IRL +353' },
+  { value: '+351', label: '🇵🇹 PRT +351' },
+  { value: '+30', label: '🇬🇷 GRC +30' },
+  { value: '+420', label: '🇨🇿 CZE +420' },
+  { value: '+36', label: '🇭🇺 HUN +36' },
+  { value: '+40', label: '🇷🇴 ROU +40' },
+  { value: '+90', label: '🇹🇷 TUR +90' },
+  { value: '+972', label: '🇮🇱 ISR +972' },
+  { value: '+971', label: '🇦🇪 ARE +971' },
+  { value: '+966', label: '🇸🇦 SAU +966' },
+  { value: '+27', label: '🇿🇦 ZAF +27' },
+  { value: '+20', label: '🇪🇬 EGY +20' },
+  { value: '+234', label: '🇳🇬 NGA +234' },
+  { value: '+254', label: '🇰🇪 KEN +254' },
+  { value: '+54', label: '🇦🇷 ARG +54' },
+  { value: '+56', label: '🇨🇱 CHL +56' },
+  { value: '+57', label: '🇨🇴 COL +57' },
+  { value: '+51', label: '🇵🇪 PER +51' },
+  { value: '+58', label: '🇻🇪 VEN +58' },
+  { value: '+65', label: '🇸🇬 SGP +65' },
+  { value: '+60', label: '🇲🇾 MYS +60' },
+  { value: '+66', label: '🇹🇭 THA +66' },
+  { value: '+62', label: '🇮🇩 IDN +62' },
+  { value: '+63', label: '🇵🇭 PHL +63' },
+  { value: '+84', label: '🇻🇳 VNM +84' },
+  { value: '+64', label: '🇳🇿 NZL +64' },
+  { value: '+39', label: '🇮🇹 ITA +39' },
+  { value: '+34', label: '🇪🇸 ESP +34' },
+  { value: '+1-CAN', label: '🇨🇦 CAN +1' },
+]
+
+const getCountryCodeForPhone = (phone: string) => {
+  // Handle special case for Canada if needed, otherwise first match
+  const match = COUNTRY_CODES.find((code) => {
+    const cleanValue = code.value.replace('-CAN', '')
+    return phone.startsWith(cleanValue)
+  })
+  return match?.value ?? '+1'
+}
+
+const stripCountryCode = (phone: string, code: string) => {
+  const cleanCode = code.replace('-CAN', '')
+  return phone.startsWith(cleanCode) ? phone.slice(cleanCode.length) : phone
+}
+
+import CountrySelect from './CountrySelect'
+
+const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) => {
+  const hasSession = Boolean(sessionPhone)
+  const [step, setStep] = useState<Step>(hasSession ? 'details' : 'login')
+  const defaultCode = hasSession ? getCountryCodeForPhone(sessionPhone ?? '') : '+1'
+  const [countryCode, setCountryCode] = useState(defaultCode)
+  const [localPhone, setLocalPhone] = useState(
+    hasSession ? stripCountryCode(sessionPhone ?? '', defaultCode) : '',
+  )
+  const [verifiedPhone, setVerifiedPhone] = useState(sessionPhone ?? '')
   const [formValues, setFormValues] = useState({
     name: guest?.name ?? '',
     email: guest?.email ?? '',
-    phone: normalizePhone(guest?.phone ?? ''),
-    guestCount: guest?.guest_count ?? 0,
+    guestCount: guest?.guest_count ?? 1,
   })
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [pendingPayload, setPendingPayload] = useState<GuestPayload | null>(null)
+  const [guestExists, setGuestExists] = useState(Boolean(guest))
 
   const isValidEmail = useMemo(() => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(formValues.email.trim())
   }, [formValues.email])
 
-  const normalizedPhoneValue = normalizePhone(formValues.phone)
-  const isValidPhone = /^\+\d{10,15}$/.test(normalizedPhoneValue)
-  const canContinue =
-    formValues.name.trim() !== '' && isValidEmail && isValidPhone
+  const normalizedPhoneInput = useMemo(() => {
+    const cleanCode = countryCode.replace('-CAN', '')
+    return normalizePhone(`${cleanCode}${localPhone}`)
+  }, [countryCode, localPhone])
+  const canSendCode = /^\+\d{10,15}$/.test(normalizedPhoneInput)
   const isOtpValid = /^\d{6}$/.test(otp.trim())
-
-  const guestCountIsSelected = formValues.guestCount === 1 || formValues.guestCount === 2
+  const guestCountIsSelected =
+    formValues.guestCount === 1 || formValues.guestCount === 2
+  const profileIsValid =
+    formValues.name.trim() !== '' && isValidEmail && guestCountIsSelected
   const ticketCost = formValues.guestCount === 2 ? 250 : 125
 
   const handleFieldChange = (
-    field: 'name' | 'email' | 'phone' | 'guestCount',
+    field: 'name' | 'email' | 'guestCount',
     value: string | number,
   ) => {
     setFormValues((prev) => ({
       ...prev,
-      [field]:
-        field === 'phone' && typeof value === 'string'
-          ? normalizePhone(value)
-          : value,
+      [field]: value,
     }))
   }
 
+  useEffect(() => {
+    if (guest) {
+      setFormValues({
+        name: guest.name ?? '',
+        email: guest.email ?? '',
+        guestCount: guest.guest_count ?? 1,
+      })
+      setGuestExists(true)
+      if (guest.phone) {
+        const normalized = normalizePhone(guest.phone)
+        const code = getCountryCodeForPhone(normalized)
+        setCountryCode(code)
+        setLocalPhone(stripCountryCode(normalized, code))
+        setVerifiedPhone(normalized)
+      }
+    } else {
+      setGuestExists(false)
+    }
+  }, [guest])
+
+  useEffect(() => {
+    if (sessionPhone) {
+      const normalized = normalizePhone(sessionPhone)
+      const code = getCountryCodeForPhone(normalized)
+      setCountryCode(code)
+      setLocalPhone(stripCountryCode(normalized, code))
+      setVerifiedPhone(sessionPhone)
+      setStep((prev) =>
+        prev === 'login' || prev === 'otp' ? 'details' : prev,
+      )
+    }
+    if (!sessionPhone && !verifiedPhone) {
+      setStep('login')
+    }
+  }, [sessionPhone, verifiedPhone])
+
   const handleSendOtp = async () => {
-    if (!canContinue) {
-      setError('Please complete the form before continuing.')
+    if (!canSendCode) {
+      setError('Enter a valid phone number with country code.')
       return
     }
 
     setLoading(true)
     setError('')
-    setPendingPayload(null)
     const { error: sendError } = await supabase.auth.signInWithOtp({
-      phone: normalizedPhoneValue,
+      phone: normalizedPhoneInput,
     })
     setLoading(false)
 
@@ -95,11 +205,33 @@ const RSVPForm = ({ guest, onSuccess, onDelete }: RSVPFormProps) => {
       return
     }
 
-    setStep('verify')
-    setStep('verify')
+    setStep('otp')
   }
 
-  const handleVerifyAndSave = async () => {
+  const loadGuestByPhone = async (phone: string) => {
+    const { data } = await supabase
+      .from('guests')
+      .select('*')
+      .eq('phone', phone)
+      .maybeSingle()
+
+    if (data) {
+      setFormValues({
+        name: data.name ?? '',
+        email: data.email ?? '',
+        guestCount: data.guest_count ?? 1,
+      })
+      setGuestExists(true)
+    } else {
+      setFormValues((prev) => ({
+        ...prev,
+        guestCount: prev.guestCount || 1,
+      }))
+      setGuestExists(false)
+    }
+  }
+
+  const handleVerifyPhone = async () => {
     if (!isOtpValid) {
       setError('Enter the 6-digit code that was just sent.')
       return
@@ -108,7 +240,7 @@ const RSVPForm = ({ guest, onSuccess, onDelete }: RSVPFormProps) => {
     setLoading(true)
     setError('')
     const { error: verifyError } = await supabase.auth.verifyOtp({
-      phone: normalizedPhoneValue,
+      phone: normalizedPhoneInput,
       token: otp.trim(),
       type: 'sms',
     })
@@ -119,19 +251,11 @@ const RSVPForm = ({ guest, onSuccess, onDelete }: RSVPFormProps) => {
       return
     }
 
-    const payload: GuestPayload = {
-      name: formValues.name.trim(),
-      email: formValues.email.trim(),
-      guest_count: formValues.guestCount,
-      paid: true,
-      verified: true,
-      phone: normalizedPhoneValue,
-    }
-
     setLoading(false)
     setOtp('')
-    setPendingPayload(payload)
-    setStep('payment')
+    setVerifiedPhone(normalizedPhoneInput)
+    await loadGuestByPhone(normalizedPhoneInput)
+    setStep('details')
   }
 
   const saveGuest = async (payload: GuestPayload) => {
@@ -164,60 +288,38 @@ const RSVPForm = ({ guest, onSuccess, onDelete }: RSVPFormProps) => {
   }
 
   const handleFinalizeRsvp = async () => {
-    if (!pendingPayload) {
-      setError('Verify your number and confirm payment first.')
+    if (!verifiedPhone) {
+      setError('Verify your number first.')
       return
+    }
+
+    const payload: GuestPayload = {
+      name: formValues.name.trim(),
+      email: formValues.email.trim(),
+      guest_count: formValues.guestCount,
+      paid: true,
+      verified: true,
+      phone: verifiedPhone,
     }
 
     setLoading(true)
     setError('')
 
     try {
-      await saveGuest(pendingPayload)
+      await saveGuest(payload)
     } catch (saveError: any) {
       setLoading(false)
       setError(saveError?.message ?? 'Unable to save your RSVP right now.')
       return
     }
 
-    setPendingPayload(null)
     setLoading(false)
-    await onSuccess()
-  }
-
-  const handleUpdate = async () => {
-    if (!formValues.name.trim() || !isValidEmail) {
-      setError('Please provide a valid name and email.')
-      return
-    }
-
-    if (!guest) {
-      return
-    }
-
-    setLoading(true)
-    setError('')
-    const { error: updateError } = await supabase
-      .from('guests')
-      .update({
-        name: formValues.name.trim(),
-        email: formValues.email.trim(),
-        guest_count: formValues.guestCount,
-      })
-      .eq('phone', guest.phone)
-
-    setLoading(false)
-
-    if (updateError) {
-      setError(updateError.message)
-      return
-    }
-
+    setGuestExists(true)
     await onSuccess()
   }
 
   const handleDelete = async () => {
-    if (!guest) {
+    if (!verifiedPhone) {
       return
     }
 
@@ -233,7 +335,7 @@ const RSVPForm = ({ guest, onSuccess, onDelete }: RSVPFormProps) => {
     const { error: deleteError } = await supabase
       .from('guests')
       .delete()
-      .eq('phone', guest.phone)
+      .eq('phone', verifiedPhone)
 
     if (deleteError) {
       setLoading(false)
@@ -275,41 +377,38 @@ const RSVPForm = ({ guest, onSuccess, onDelete }: RSVPFormProps) => {
 
   return (
     <div className="rsvp-form-container">
-      <input
-        type="text"
-        placeholder="your name"
-        value={formValues.name}
-        onChange={(event) => handleFieldChange('name', event.target.value)}
-      />
-      <input
-        type="email"
-        placeholder="your email"
-        value={formValues.email}
-        onChange={(event) => handleFieldChange('email', event.target.value)}
-      />
-      <input
-        type="tel"
-        placeholder="+12345678910"
-        value={formValues.phone}
-        onChange={(event) => handleFieldChange('phone', event.target.value)}
-        disabled={isEditing}
-      />
-
-      {renderGuestToggle()}
-
-      {!isEditing && step === 'details' && (
+      {step === 'login' && (
         <>
+          <div className="phone-input-row">
+            <CountrySelect
+              value={countryCode}
+              options={COUNTRY_CODES}
+              onChange={(val) => setCountryCode(val)}
+              disabled={loading}
+            />
+            <input
+              type="tel"
+              className="local-phone-input"
+              placeholder="6034941235"
+              value={localPhone}
+              onChange={(event) => {
+                const digits = event.target.value.replace(/\D/g, '')
+                setLocalPhone(digits)
+              }}
+              disabled={loading}
+            />
+          </div>
           <button
             type="button"
             onClick={handleSendOtp}
-            disabled={!canContinue || !guestCountIsSelected || loading}
+            disabled={!canSendCode || loading}
           >
-            {loading ? 'sending...' : 'continue'}
+            {loading ? 'sending...' : 'send code'}
           </button>
         </>
       )}
 
-      {!isEditing && step === 'verify' && (
+      {step === 'otp' && (
         <div className="verification-actions">
           <p className="verification-text">
             Enter the 6-digit code we just texted you.
@@ -324,22 +423,22 @@ const RSVPForm = ({ guest, onSuccess, onDelete }: RSVPFormProps) => {
           />
           <button
             type="button"
-            onClick={handleVerifyAndSave}
+            onClick={handleVerifyPhone}
             disabled={!isOtpValid || loading}
           >
-            {loading ? 'verifying...' : 'verify & save'}
+            {loading ? 'verifying...' : 'verify'}
           </button>
           <div className="footer">
             <button
               type="button"
               className="text-link"
               onClick={() => {
-                setStep('details')
+                setStep('login')
                 setOtp('')
               }}
               disabled={loading}
             >
-              Edit number
+              Change number
             </button>
             <button
               type="button"
@@ -353,7 +452,62 @@ const RSVPForm = ({ guest, onSuccess, onDelete }: RSVPFormProps) => {
         </div>
       )}
 
-      {!isEditing && step === 'payment' && (
+      {(step === 'details' ||
+        step === 'payment' ||
+        step === 'confirm') && (
+        <>
+          <input
+            type="text"
+            placeholder="your name"
+            value={formValues.name}
+            onChange={(event) =>
+              handleFieldChange('name', event.target.value)
+            }
+          />
+          <input
+            type="email"
+            placeholder="your email"
+            value={formValues.email}
+            onChange={(event) =>
+              handleFieldChange('email', event.target.value)
+            }
+          />
+
+          {renderGuestToggle()}
+
+          <button
+            type="button"
+            onClick={() => {
+              if (!profileIsValid) {
+                setError('Please complete your profile before continuing.')
+                return
+              }
+              if (!verifiedPhone) {
+                setError('Verify your phone number first.')
+                return
+              }
+              setError('')
+              setStep('payment')
+            }}
+            disabled={!profileIsValid || loading}
+          >
+            {guestExists ? 'continue' : 'continue'}
+          </button>
+
+          {guestExists && (
+            <button
+              type="button"
+              className="text-link danger"
+              onClick={handleDelete}
+              disabled={loading}
+            >
+              delete RSVP
+            </button>
+          )}
+        </>
+      )}
+
+      {step === 'payment' && (
         <div className="verification-actions payment-step">
           <p className="verification-text">Have you paid Max yet?</p>
           <p className="verification-subtext">
@@ -378,7 +532,7 @@ const RSVPForm = ({ guest, onSuccess, onDelete }: RSVPFormProps) => {
         </div>
       )}
 
-      {!isEditing && step === 'confirm' && (
+      {step === 'confirm' && (
         <div className="verification-actions payment-step">
           <p className="verification-text">Double checking...</p>
           <p className="verification-subtext">
@@ -395,26 +549,6 @@ const RSVPForm = ({ guest, onSuccess, onDelete }: RSVPFormProps) => {
             go back
           </button>
         </div>
-      )}
-
-      {isEditing && (
-        <>
-          <button
-            type="button"
-            onClick={handleUpdate}
-            disabled={!guestCountIsSelected || loading}
-          >
-            {loading ? 'saving...' : 'save changes'}
-          </button>
-          <button
-            type="button"
-            className="text-link danger"
-            onClick={handleDelete}
-            disabled={loading}
-          >
-            delete RSVP
-          </button>
-        </>
       )}
 
       {error && <p className="error-message">{error}</p>}

@@ -31,7 +31,7 @@ const GuestList = ({
           return (
             <li key={`${guest.phone}-${guest.name}`}>
               <div className="guest-info">
-                <span className="guest-name">{guest.name}</span>
+                <span className="guest-name">{guest.name || 'Unknown'}</span>
                 {guest.guest_count === 2 && (
                   <span className="guest-plus-one">+1</span>
                 )}

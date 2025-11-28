@@ -131,7 +131,7 @@ select:focus {
 /* Scroll layers */
 .hero {
   position: fixed;
-  top: 50%;
+  top: 42svh;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
@@ -196,7 +196,7 @@ select:focus {
 
 .scroll-spacer {
   position: relative;
-  height: 400vh;
+  height: 225vh;
   z-index: 0;
 }
 
@@ -262,7 +262,8 @@ select:focus {
 
 .orange-blurb {
   position: absolute;
-  bottom: 5%;
+  top: 58svh;
+  bottom: auto;
   left: 50%;
   transform: translateX(-50%);
   font-family: "Nagbuloe", serif;
@@ -347,7 +348,6 @@ select:focus {
 .detail-text,
 .detail-link,
 .guest-list-header,
-.guest-list-items li,
 .third-section-left p,
 .third-section-left ul,
 .third-section-left li {
@@ -357,6 +357,11 @@ select:focus {
   word-wrap: break-word;
   word-break: break-word;
   max-width: 100%;
+}
+
+.guest-list-items li {
+  font-family: "Nagbuloe", serif;
+  color: #ffffff;
 }
 
 .detail-text {
@@ -575,17 +580,17 @@ select:focus {
 }
 
 .guest-list-items li {
-  padding: 1rem 0.25rem;
+  padding: 0.7rem 0.25rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
   font-size: 1.25rem;
-  min-height: 64px;
+  min-height: 48px;
 }
 .edit-inline {
-  margin-left: 1rem;
+  margin-left: auto;
   flex-shrink: 0;
 }
 
@@ -603,10 +608,9 @@ select:focus {
 
 .guest-name {
   color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .guest-plus-one {
@@ -681,6 +685,7 @@ select:focus {
   font-family: "Nagbuloe", serif;
   text-decoration: underline;
   cursor: pointer;
+  width: auto;
 }
 .text-link.danger {
   color: #ffd5cc;
@@ -695,6 +700,55 @@ select:focus {
 .split-button-group {
   display: flex;
   gap: 0.5rem;
+}
+
+.phone-input-row {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.country-select {
+  flex: 0 0 28%;
+  padding: 0.95rem 0.8rem;
+  font-family: "Nagbuloe", serif;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #000;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  appearance: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.country-select:focus {
+  outline: none;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.local-phone-input {
+  flex: 1;
+  padding: 0.95rem 1.2rem;
+  font-family: "Nagbuloe", serif;
+  font-size: 1rem;
+  border: none;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #000000;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.local-phone-input:focus {
+  outline: none;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
 }
 
 .venmo-button {
@@ -1128,5 +1182,85 @@ select:focus {
   }
   100% {
     transform: translateY(0px);
+  }
+}
+
+.country-select-container {
+  flex: 0 0 auto;
+  width: 76px;
+  position: relative;
+  font-family: "Nagbuloe", serif;
+}
+
+.country-select-trigger {
+  width: 100%;
+  padding: 0.95rem 0.4rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #000;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  display: block;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  letter-spacing: 0.05em;
+}
+
+.country-select-trigger:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.country-select-trigger:focus,
+.country-select-trigger:active {
+  outline: none;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.country-select-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  width: 280px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  padding: 0.5rem;
+}
+
+.country-select-option {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  font-family: "Nagbuloe", serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.1s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.country-select-option:hover {
+  background: rgba(0, 0, 0, 0.05);
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .country-select-dropdown {
+    width: 240px;
   }
 }
