@@ -332,12 +332,12 @@ const App = () => {
                 <span className="detail-label">tickets</span>
                 <div className="pricing-tiers">
                   <div className="pricing-tier">
-                    <span className="pricing-date">Until Dec 6</span>
+                    <span className="pricing-date">Through Dec 6</span>
                     <span className="pricing-separator" />
                     <span className="pricing-amount">$125</span>
                   </div>
                   <div className="pricing-tier">
-                    <span className="pricing-date">Until Dec 28</span>
+                    <span className="pricing-date">Through Dec 27</span>
                     <span className="pricing-separator" />
                     <span className="pricing-amount">$150</span>
                   </div>
