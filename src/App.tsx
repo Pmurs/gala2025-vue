@@ -329,29 +329,25 @@ const App = () => {
                 </svg>
               </span>
               <div className="detail-text" style={{ width: '100%' }}>
-                <span className="detail-label">the skinny</span>
-                <div className="skinny-list">
-                  <div className="skinny-item">
-                    <span>Black tie</span>
-                    <span className="skinny-divider" />
-                  </div>
-                  <div className="skinny-item">
-                    <span>6 hour open bar (cocktails, beer + wine)</span>
-                    <span className="skinny-divider" />
-                  </div>
-                  <div className="skinny-item">
-                    <span>Two live bands + a DJ set</span>
-                    <span className="skinny-divider" />
-                  </div>
-                  <div className="skinny-item">
-                    <span>Small bites by Icelandic Michelin Man Paul Murray + late-night tacos made onsite</span>
-                    <span className="skinny-divider" />
-                  </div>
-                  <div className="skinny-item">
-                    <span>Roof deck overlooking the East River</span>
-                    <span className="skinny-divider" />
-                  </div>
-                </div>
+                <span className="detail-label">what to expect</span>
+                <ul className="skinny-list">
+                  <li>Black tie</li>
+                  <li>6 hour open bar (cocktails, beer + wine)</li>
+                  <li>Two live bands + a DJ set</li>
+                  <li>
+                    Small bites to start,{' '}
+                    <a
+                      href="https://www.instagram.com/betoscarnitas/?hl=en"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="orange-link"
+                    >
+                      late night tacos
+                    </a>{' '}
+                    to end
+                  </li>
+                  <li>Roof deck overlooking the East River</li>
+                </ul>
               </div>
             </div>
 

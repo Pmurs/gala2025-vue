@@ -406,8 +406,8 @@ select:focus {
 
 .detail-item {
   display: flex;
-  align-items: center;
-  gap: 0.525rem;
+  align-items: flex-start;
+  gap: 0.65rem;
   text-align: left;
   max-width: 100%;
   overflow-wrap: break-word;
@@ -424,6 +424,8 @@ select:focus {
   justify-content: center;
   animation: floatIcon 6s ease-in-out infinite;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  margin-top: 0.15rem; /* Align top of icon with title text */
 }
 
 @keyframes floatIcon {
@@ -447,32 +449,34 @@ select:focus {
 }
 
 .skinny-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.35rem 0 0 0;
   display: flex;
   flex-direction: column;
-  width: 100%;
-  gap: 0.35rem;
-  margin-top: 0.25rem;
+  gap: 0.4rem;
 }
 
-.skinny-item {
+.skinny-list li {
   font-family: "Nagbuloe", serif;
   font-size: 1rem;
   color: #ffffff;
-  line-height: 1.1;
-  width: 100%;
+  line-height: 1.3;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
+  gap: 0.45rem;
 }
 
-.skinny-divider {
-  height: 1px;
-  flex: 1;
-  border-bottom: 2px dotted rgba(255, 255, 255, 0.35);
-  margin: 0 0.6rem;
+.skinny-list li::before {
+  content: '\2192';
+  font-size: 1rem;
+  color: #ffffff;
+  opacity: 0.75;
   position: relative;
-  top: -4px;
+  top: 1px;
 }
+
+/* Removed old skinny-item and skinny-divider styles */
 
 .guest-list-header {
   font-family: "Nagbuloe", serif;
@@ -486,7 +490,7 @@ select:focus {
 .third-section-left p,
 .third-section-left ul,
 .third-section-left li {
-  font-family: "Helvetica Rounded", "Arial Rounded MT Bold", sans-serif;
+  font-family: "Nagbuloe", serif;
   font-weight: normal;
   color: #ffffff;
   overflow-wrap: break-word;
@@ -609,19 +613,18 @@ select:focus {
 }
 
 .details-paragraph {
-  font-size: 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 28px;
-  padding: 2rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 18px 40px rgba(0, 0, 0, 0.18);
+  margin-top: 2.5rem;
+  padding: 0 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  padding-top: 1.5rem;
 }
 
 .details-paragraph p {
+  font-family: "Nagbuloe", serif;
   font-weight: normal;
-  line-height: 1.7;
-  letter-spacing: 0.01em;
-  font-size: 1rem;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: 1rem;
 }
 
