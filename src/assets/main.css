@@ -467,6 +467,18 @@ select:focus {
   gap: 0.45rem;
 }
 
+.skinny-list li .orange-link {
+  display: inline;
+  white-space: normal;
+}
+
+@media (max-width: 767px) {
+  .skinny-list li {
+    font-size: 0.95rem; /* Slightly smaller on mobile to prevent awkward wrapping */
+    line-height: 1.25;
+  }
+}
+
 .skinny-list li::before {
   content: '\2192';
   font-size: 1rem;
