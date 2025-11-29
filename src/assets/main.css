@@ -1631,3 +1631,12 @@ select:focus {
     width: 240px;
   }
 }
+
+.ticket-barrier-subtext {
+  font-family: "Nagbuloe", serif;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 0.75rem;
+  line-height: 1.4;
+  max-width: 100%;
+}
