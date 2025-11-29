@@ -379,22 +379,17 @@ const App = () => {
                   <div className="pricing-tier">
                     <span className="pricing-date">Through Dec 6</span>
                     <span className="pricing-separator" />
-                    <span className="pricing-amount">$125</span>
+                    <span className="pricing-amount">$135</span>
                   </div>
                   <div className="pricing-tier">
                     <span className="pricing-date">Through Dec 27</span>
                     <span className="pricing-separator" />
-                    <span className="pricing-amount">$150</span>
+                    <span className="pricing-amount">$160</span>
                   </div>
                   <div className="pricing-tier">
-                    <span className="pricing-date">Dec 28</span>
+                    <span className="pricing-date">Last-minute</span>
                     <span className="pricing-separator" />
                     <span className="pricing-amount">$185</span>
-                  </div>
-                  <div className="pricing-tier">
-                    <span className="pricing-date">Dec 31</span>
-                    <span className="pricing-separator" />
-                    <span className="pricing-amount">$200</span>
                   </div>
                 </div>
               </div>
@@ -403,11 +398,6 @@ const App = () => {
           </div>
 
           <div className="details-paragraph">
-            <p className="details-paragraph-spacing">
-              If you're new: this is a party we throw with friends, for friends.
-              Some of us cook, some play music, others help organize, decorate, you
-              name it.
-            </p>
             <p className="details-paragraph-spacing">
               If the ticket price is a barrier, please reach out to Max at
               <strong> 603-494-0576</strong>. We want you there! Discounts are available for anyone
