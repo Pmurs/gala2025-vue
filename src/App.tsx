@@ -401,14 +401,6 @@ const App = () => {
             </div>
 
           </div>
-
-          <div className="details-paragraph">
-            <p className="details-paragraph-spacing">
-              If you're new: this is a party we throw with friends, for friends.
-              Some of us cook, some play music, others help organize, decorate, you
-              name it.
-            </p>
-          </div>
         </div>
 
         <div className="third-section-right">
