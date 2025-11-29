@@ -392,6 +392,10 @@ const App = () => {
                   If the ticket price is a barrier, please reach out to Max at
                   <strong> 603-494-0576</strong>. We want you there! Discounts are
                   available for anyone willing to lend a hand.
+                  <br />
+                  <br />
+                  And as always: invite your friends. The whole point of this is to
+                  combine crowds, and it's more fun with them there!
                 </p>
               </div>
             </div>
@@ -403,10 +407,6 @@ const App = () => {
               If you're new: this is a party we throw with friends, for friends.
               Some of us cook, some play music, others help organize, decorate, you
               name it.
-            </p>
-            <p className="details-paragraph-spacing">
-              And as always: invite your friends. The whole point of this is to
-              combine crowds, and it's more fun with them there!
             </p>
           </div>
         </div>
