@@ -335,16 +335,18 @@ const App = () => {
                   <li>6 hour open bar (cocktails, beer + wine)</li>
                   <li>Two live bands + a DJ set</li>
                   <li>
-                    Small bites to start,{' '}
-                    <a
-                      href="https://www.instagram.com/betoscarnitas/?hl=en"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="orange-link"
-                    >
-                      late night tacos
-                    </a>{' '}
-                    to end
+                    <span>
+                      Small bites to start,{' '}
+                      <a
+                        href="https://www.instagram.com/betoscarnitas/?hl=en"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="orange-link"
+                      >
+                        late night tacos
+                      </a>{' '}
+                      to end
+                    </span>
                   </li>
                   <li>Roof deck overlooking the East River</li>
                 </ul>
