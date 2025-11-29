@@ -319,6 +319,51 @@ const App = () => {
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
+                  <path
+                    d="M12 4L14.5 9.5L20 12L14.5 14.5L12 20L9.5 14.5L4 12L9.5 9.5L12 4Z"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              <div className="detail-text" style={{ width: '100%' }}>
+                <span className="detail-label">the skinny</span>
+                <div className="skinny-list">
+                  <div className="skinny-item">
+                    <span>Black tie</span>
+                    <span className="skinny-divider" />
+                  </div>
+                  <div className="skinny-item">
+                    <span>6 hour open bar (cocktails, beer + wine)</span>
+                    <span className="skinny-divider" />
+                  </div>
+                  <div className="skinny-item">
+                    <span>Two live bands + a DJ set</span>
+                    <span className="skinny-divider" />
+                  </div>
+                  <div className="skinny-item">
+                    <span>Small bites by Icelandic Michelin Man Paul Murray + late-night tacos made onsite</span>
+                    <span className="skinny-divider" />
+                  </div>
+                  <div className="skinny-item">
+                    <span>Roof deck overlooking the East River</span>
+                    <span className="skinny-divider" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="detail-item">
+              <span className="detail-icon">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <rect x="5" y="7" width="14" height="10" rx="1" fill="white" />
                   <path
                     d="M9 9h6M9 11h6M9 13h6M9 15h6"
@@ -363,42 +408,6 @@ const App = () => {
               Some of us cook, some play music, others help organize, decorate, you
               name it.
             </p>
-            <h3 className="details-subheader">What can you expect?</h3>
-            <ul className="details-list">
-              <li>
-                <span>
-                  <strong>Open bar</strong> all night
-                </span>
-              </li>
-              <li>
-                <span>
-                  <strong>Small bites</strong> by Icelandic Michelin Man Paul Murray
-                </span>
-              </li>
-              <li>
-                <span>
-                  <strong>Two live bands</strong> + a DJ set
-                </span>
-              </li>
-              <li>
-                <span>
-                  <strong>Roof deck</strong> overlooking the East River
-                </span>
-              </li>
-              <li>
-                <span>
-                  <a
-                    href="https://www.instagram.com/betoscarnitas/?hl=en"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="orange-link"
-                  >
-                    <strong>Late-night tacos</strong>
-                  </a>{' '}
-                  made onsite
-                </span>
-              </li>
-            </ul>
             <p className="details-paragraph-spacing">
               If the ticket price is a barrier, please reach out to Max at
               <strong> 603-494-0576</strong>. We want you there! Discounts are available for anyone

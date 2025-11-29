@@ -446,6 +446,34 @@ select:focus {
   max-width: 100%;
 }
 
+.skinny-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+
+.skinny-item {
+  font-family: "Nagbuloe", serif;
+  font-size: 1.1rem;
+  color: #ffffff;
+  line-height: 1.1;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skinny-divider {
+  height: 1px;
+  flex: 1;
+  border-bottom: 2px dotted rgba(255, 255, 255, 0.35);
+  margin: 0 0.6rem;
+  position: relative;
+  top: -4px;
+}
+
 .guest-list-header {
   font-family: "Nagbuloe", serif;
   color: #ffffff;
