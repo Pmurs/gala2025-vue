@@ -16,6 +16,17 @@ type Track = {
 }
 
 const tracks: Track[] = [
+  { id: 'irish-exit', title: 'Irish Exit - Same Vein', videoId: '6NaFOE7PQLA' },
+  { id: 'ocean-avenue', title: 'Ocean Avenue - Yellowcard', videoId: 'X9fLbfzCqWw' },
+  { id: 'teenage-dirtbag', title: 'Teenage Dirtbag - Wheatus', videoId: 'FC3y9llDXuM' },
+  { id: 'my-own-worst-enemy', title: 'My Own Worst Enemy - Lit', videoId: 'sc5iTNVEOAg' },
+  { id: 'electric-feel', title: 'Electric Feel - MGMT', videoId: 'MmZexg8sxyk' },
+  { id: 'today', title: 'Today - Smashing Pumpkins', videoId: 'xmUZ6nCFNoU' },
+  { id: 'oysters-pocket', title: 'Oysters in My Pocket - Royel Otis', videoId: 'QtgcYmfo2iI' },
+  { id: 'zombie', title: 'Zombie - The Cranberries', videoId: '6Ejga4kJUts' },
+  { id: 'chloroform', title: 'Chloroform - Phoenix', videoId: 'jc5VCu0ECSI' },
+  { id: 'bitter', title: 'Bitter - Palace', videoId: '2_n1L-ikqZk' },
+  { id: 'call-me', title: 'Call Me - Blondie', videoId: 'StKVS0eI85I' },
   { id: 'bad-decisions', title: 'Bad Decisions - The Strokes', videoId: '5fbZTnZDvPA' },
   { id: 'chaise-longue', title: 'Chaise Longue - Wet Leg', videoId: 'Zd9jeJk2UHQ' },
   { id: 'i-melt-with-you', title: 'I Melt With You - Modern English', videoId: 'LuN6gs0AJls' },
@@ -28,7 +39,6 @@ const tracks: Track[] = [
 ]
 
 const STORAGE_KEYS = {
-  trackIndex: 'gala-radio-track-index',
   isOpen: 'gala-radio-open',
   position: 'gala-radio-position',
 }
@@ -37,11 +47,7 @@ const getInitialTrackIndex = () => {
   if (typeof window === 'undefined') {
     return 0
   }
-  const storedIndex = Number(localStorage.getItem(STORAGE_KEYS.trackIndex))
-  if (Number.isNaN(storedIndex) || storedIndex < 0 || storedIndex >= tracks.length) {
-    return 0
-  }
-  return storedIndex
+  return Math.floor(Math.random() * tracks.length)
 }
 
 const getInitialIsOpen = () => {
@@ -113,6 +119,7 @@ const MusicPlayer = ({ onPlayStateChange }: MusicPlayerProps) => {
   const [isBuffering, setIsBuffering] = useState(false)
   const [position, setPosition] = useState<Position>(getInitialPosition)
   const [isDragging, setIsDragging] = useState(false)
+  const isPlayingRef = useRef(false)
 
   const clampPosition = useCallback((x: number, y: number): Position => {
     if (typeof window === 'undefined' || !popupRef.current) {
@@ -186,19 +193,20 @@ const MusicPlayer = ({ onPlayStateChange }: MusicPlayerProps) => {
   }, [])
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEYS.trackIndex, String(currentTrackIndex))
-    }
+    isPlayingRef.current = isPlaying
+  }, [isPlaying])
 
+  useEffect(() => {
     if (!isReady || !playerRef.current) {
       return
     }
 
     const track = tracks[currentTrackIndex]
+    const shouldPlay = isPlayingRef.current
 
     try {
       setIsBuffering(true)
-      if (isPlaying) {
+      if (shouldPlay) {
         playerRef.current.loadVideoById(track.videoId)
       } else {
         playerRef.current.cueVideoById(track.videoId)
@@ -215,7 +223,7 @@ const MusicPlayer = ({ onPlayStateChange }: MusicPlayerProps) => {
     }, 250)
 
     return () => clearTimeout(handleReadyTimeout)
-  }, [currentTrackIndex, isReady, isPlaying])
+  }, [currentTrackIndex, isReady])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
