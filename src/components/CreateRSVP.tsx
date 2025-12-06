@@ -82,11 +82,11 @@ const CreateRSVP = ({ onSubmit }: CreateRSVPProps) => {
           </p>
           <a
             className="venmo-button"
-            href={`https://account.venmo.com/payment-link?amount=${ticketCost}&note=for%20the%20gala!&recipients=${VENMO_HANDLE}&txn=pay`}
+            href={`https://venmo.com/?txn=pay&recipients=${VENMO_HANDLE}&amount=${ticketCost}&note=for%20the%20gala!`}
             target="_blank"
             rel="noreferrer"
           >
-            venmo {VENMO_HANDLE}
+            venmo @{VENMO_HANDLE}
           </a>
           <button type="button" onClick={handleSubmit}>
             i've paid
@@ -103,4 +103,5 @@ const CreateRSVP = ({ onSubmit }: CreateRSVPProps) => {
 }
 
 export default CreateRSVP
+
 

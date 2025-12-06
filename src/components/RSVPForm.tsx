@@ -110,6 +110,7 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [consentChecked, setConsentChecked] = useState(false)
   const [guestExists, setGuestExists] = useState(Boolean(guest))
 
   const isValidEmail = useMemo(() => {
@@ -121,13 +122,46 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
     const cleanCode = countryCode.replace('-CAN', '')
     return normalizePhone(`${cleanCode}${localPhone}`)
   }, [countryCode, localPhone])
-  const canSendCode = /^\+\d{10,15}$/.test(normalizedPhoneInput)
+  const canSendCode = /^\+\d{10,15}$/.test(normalizedPhoneInput) && consentChecked
   const isOtpValid = /^\d{6}$/.test(otp.trim())
   const guestCountIsSelected =
     formValues.guestCount === 1 || formValues.guestCount === 2
   const profileIsValid =
     formValues.name.trim() !== '' && isValidEmail && guestCountIsSelected
-  const ticketCost = formValues.guestCount === 2 ? 250 : 125
+
+  const getPricePerTicket = () => {
+    const now = new Date()
+    // Convert to EST for comparison
+    const estOffset = -5 * 60 // EST is UTC-5
+    const nowUTC = now.getTime() + now.getTimezoneOffset() * 60000
+    const nowEST = new Date(nowUTC + estOffset * 60000)
+
+    const dec7 = new Date('2025-12-07T00:00:00') // 135 until this starts
+    const dec28 = new Date('2025-12-28T00:00:00') // 160 until this starts
+
+    if (nowEST < dec7) return 135
+    if (nowEST < dec28) return 160
+    return 185
+  }
+
+  const ticketCost = formValues.guestCount * getPricePerTicket()
+
+  const getPricingText = () => {
+    const now = new Date()
+    const estOffset = -5 * 60
+    const nowUTC = now.getTime() + now.getTimezoneOffset() * 60000
+    const nowEST = new Date(nowUTC + estOffset * 60000)
+    const dec7 = new Date('2025-12-07T00:00:00')
+    const dec28 = new Date('2025-12-28T00:00:00')
+
+    if (nowEST < dec7) {
+      return 'Tickets are $135 per person until December 6th, when they become $160.'
+    }
+    if (nowEST < dec28) {
+      return 'Tickets are $160 per person until December 27th.'
+    }
+    return 'Last-minute tickets are $185 per person.'
+  }
 
   const handleFieldChange = (
     field: 'name' | 'email' | 'guestCount',
@@ -389,7 +423,7 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
             <input
               type="tel"
               className="local-phone-input"
-              placeholder="6034941235"
+              placeholder="2484345508"
               value={localPhone}
               onChange={(event) => {
                 const digits = event.target.value.replace(/\D/g, '')
@@ -398,6 +432,35 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
               disabled={loading}
             />
           </div>
+
+          <div className="consent-checkbox-wrapper" style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            margin: '0.25rem 0 0.75rem 0',
+            width: '100%'
+          }}>
+            <input
+              type="checkbox"
+              id="sms-consent"
+              className="rsvp-checkbox"
+              checked={consentChecked}
+              onChange={(e) => setConsentChecked(e.target.checked)}
+            />
+            <label htmlFor="sms-consent" style={{
+              fontFamily: '"Nagbuloe", serif',
+              fontSize: '0.9rem',
+              color: '#ffffff',
+              cursor: 'pointer',
+              lineHeight: 1.3,
+              opacity: 0.9,
+              textAlign: 'left'
+            }}>
+              I'm good to receive gala text updates!
+            </label>
+          </div>
+
           <button
             type="button"
             onClick={handleSendOtp}
@@ -510,17 +573,14 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
       {step === 'payment' && (
         <div className="verification-actions payment-step">
           <p className="verification-text">Have you paid Max yet?</p>
-          <p className="verification-subtext">
-            Tickets are $125 per person until December 10th. Your total right
-            now: ${ticketCost}.
-          </p>
+          <p className="verification-subtext">{getPricingText()}</p>
           <a
             className="venmo-button"
-            href={`https://account.venmo.com/payment-link?amount=${ticketCost}&note=for%20the%20gala!&recipients=${VENMO_HANDLE}&txn=pay`}
+            href={`https://venmo.com/?txn=pay&recipients=${VENMO_HANDLE}&amount=${ticketCost}&note=for%20the%20gala!`}
             target="_blank"
             rel="noreferrer"
           >
-            Venmo {VENMO_HANDLE} · ${ticketCost}
+            Venmo @{VENMO_HANDLE} · ${ticketCost}
           </a>
           <button
             type="button"
@@ -529,6 +589,9 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
           >
             I paid Max
           </button>
+          <p className="verification-subtext" style={{ marginTop: '1rem', fontSize: '0.85em', opacity: 0.7, fontStyle: 'italic' }}>
+            * we're unable to offer refunds due to many upfront costs but are happy to help with a ticket transfer if needed
+          </p>
         </div>
       )}
 

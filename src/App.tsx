@@ -336,7 +336,15 @@ const App = () => {
                   <li>Two live bands + a DJ set</li>
                   <li>
                     <span>
-                      Small bites to start,{' '}
+                      <a
+                        href="https://www.instagram.com/p/DOHWccGj1a1/?igsh=MW91Z2F2YTR5azRjeQ=="
+                        target="_blank"
+                        rel="noreferrer"
+                        className="orange-link"
+                      >
+                        Small bites
+                      </a>{' '}
+                      to start,{' '}
                       <a
                         href="https://www.instagram.com/betoscarnitas/?hl=en"
                         target="_blank"

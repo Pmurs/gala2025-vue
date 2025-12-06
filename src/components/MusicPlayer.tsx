@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import jukeboxImg from '@/assets/jukebox.png'
+import staticVideo from '@/assets/static.mp4'
 
 declare global {
   interface Window {
@@ -36,6 +37,11 @@ const tracks: Track[] = [
   { id: 'pinball-wizard', title: 'Pinball Wizard - The Who', videoId: 'hHc7bR6y06M' },
   { id: 'born-to-run', title: 'Born to Run - Bruce Springsteen', videoId: 'IxuThNgl3YA' },
   { id: 'r-u-mine', title: 'R U Mine? - Arctic Monkeys', videoId: 'VQH8ZTgna3Q' },
+  { id: 'old-small-world', title: 'Old Small World - Same Vein', videoId: 'Ex5DUea08Gc' },
+  { id: 'stone-cold-sally', title: 'Stone Cold Sally - Zach & the Lateblumers', videoId: 'aDEIgmE5BQc' },
+  { id: 'wet-dream', title: 'Wet Dream - Wet Leg', videoId: 'tjpgJjdk52c' },
+  { id: 'price-on-fun', title: 'Price on Fun - The Chats', videoId: 'GXiAyxVQgb4' },
+  { id: 'fat-bottomed-girls', title: 'Fat Bottomed Girls - Queen', videoId: 'VMnjF1O4eH0' },
 ]
 
 const STORAGE_KEYS = {
@@ -429,48 +435,58 @@ const MusicPlayer = ({ onPlayStateChange }: MusicPlayerProps) => {
         <div className="jukebox-window-body">
           <div className="jukebox-video-frame">
             {!isPlaying && (
-              <div className="jukebox-video-static" aria-hidden="true" />
+              <video
+                src={staticVideo}
+                className="jukebox-video-static"
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{ objectFit: 'cover' }}
+              />
             )}
             <div className="jukebox-video-shield" aria-hidden="true" />
             <div ref={playerContainerRef} className="jukebox-video-iframe" />
           </div>
-          <div className="jukebox-now-playing">
-            <span className="jukebox-label">now playing</span>
-            <span className="jukebox-track-title">{currentTrack.title}</span>
-            {isBuffering && <span className="jukebox-buffering">loading…</span>}
-          </div>
-          <div className="jukebox-controls-row">
-            <button 
-              type="button" 
-              className="jukebox-small-button jukebox-icon-btn" 
-              onClick={handlePrev}
-              aria-label="Previous track"
-            >
-              <span className="prev-icon" aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className="jukebox-small-button jukebox-icon-btn"
-              onClick={togglePlayback}
-              disabled={isBuffering}
-              aria-label={isPlaying ? 'Pause' : 'Play'}
-            >
-              {isBuffering ? (
-                <span style={{ fontSize: '0.75rem' }}>loading</span>
-              ) : isPlaying ? (
-                <span className="pause-icon-jukebox" aria-hidden="true" />
-              ) : (
-                <span className="play-icon-jukebox" aria-hidden="true" />
-              )}
-            </button>
-            <button 
-              type="button" 
-              className="jukebox-small-button jukebox-icon-btn" 
-              onClick={handleNext}
-              aria-label="Next track"
-            >
-              <span className="next-icon" aria-hidden="true" />
-            </button>
+          <div className="jukebox-controls-and-info">
+            <div className="jukebox-controls-row">
+              <button 
+                type="button" 
+                className="jukebox-control-button jukebox-control-prev" 
+                onClick={handlePrev}
+                aria-label="Previous track"
+              >
+                <span className="prev-icon" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={`jukebox-control-button jukebox-control-play ${!isPlaying ? 'pulse' : ''}`}
+                onClick={togglePlayback}
+                disabled={false}
+                aria-label={isPlaying ? 'Pause' : 'Play'}
+              >
+                {isBuffering && isPlaying ? (
+                  <span className="jukebox-loading-text">loading</span>
+                ) : isPlaying ? (
+                  <span className="pause-icon-jukebox" aria-hidden="true" />
+                ) : (
+                  <span className="play-icon-jukebox" aria-hidden="true" />
+                )}
+              </button>
+              <button 
+                type="button" 
+                className="jukebox-control-button jukebox-control-next" 
+                onClick={handleNext}
+                aria-label="Next track"
+              >
+                <span className="next-icon" aria-hidden="true" />
+              </button>
+            </div>
+            <div className="jukebox-now-playing">
+              <span className="jukebox-label">now playing</span>
+              <span className="jukebox-track-title">{currentTrack.title}</span>
+              {isBuffering && isPlaying && <span className="jukebox-buffering">loading…</span>}
+            </div>
           </div>
         </div>
       </div>
