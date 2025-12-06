@@ -40,7 +40,7 @@ const tracks: Track[] = [
   { id: 'old-small-world', title: 'Old Small World - Same Vein', videoId: 'Ex5DUea08Gc' },
   { id: 'stone-cold-sally', title: 'Stone Cold Sally - Zach & the Lateblumers', videoId: 'aDEIgmE5BQc' },
   { id: 'wet-dream', title: 'Wet Dream - Wet Leg', videoId: 'tjpgJjdk52c' },
-  { id: 'price-on-fun', title: 'Price on Fun - The Chats', videoId: 'GXiAyxVQgb4' },
+  { id: 'price-on-fun', title: 'Price on Fun - Chloe Slater', videoId: 'GXiAyxVQgb4' },
   { id: 'fat-bottomed-girls', title: 'Fat Bottomed Girls - Queen', videoId: 'VMnjF1O4eH0' },
 ]
 
