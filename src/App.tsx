@@ -382,10 +382,10 @@ const App = () => {
               <div className="detail-text" style={{ width: '100%' }}>
                 <span className="detail-label">tickets</span>
                 <div className="pricing-tiers">
-                  <div className="pricing-tier">
+                  <div className="pricing-tier past">
                     <span className="pricing-date">Through Dec 6</span>
                     <span className="pricing-separator" />
-                    <span className="pricing-amount">$135</span>
+                    <span className="pricing-amount">SOLD OUT</span>
                   </div>
                   <div className="pricing-tier">
                     <span className="pricing-date">Through Dec 27</span>
