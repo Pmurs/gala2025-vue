@@ -400,7 +400,8 @@ const App = () => {
                 </div>
                 <p className="ticket-barrier-subtext">
                   If the ticket price is a barrier, please reach out — we want you
-                  there! Discounts are available for anyone willing to lend a hand.
+                  there! Contact us at <strong>anycgala@gmail.com</strong>. Discounts
+                  are available for anyone willing to lend a hand.
                   <br />
                   <br />
                   And as always: invite your friends. The whole point of this is to
