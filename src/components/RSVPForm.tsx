@@ -738,7 +738,7 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete, onIntentChange, pa
               <div className="success-emoji">🎉</div>
               <p className="success-title">You're in!</p>
               <p className="success-subtitle">
-                See you on New Year's Eve at the Greenpoint Loft. Black tie optional but encouraged!
+                See you on New Year's Eve at the Greenpoint Loft.
               </p>
             </>
           )}
