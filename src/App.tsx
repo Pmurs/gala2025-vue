@@ -399,9 +399,8 @@ const App = () => {
                   </div>
                 </div>
                 <p className="ticket-barrier-subtext">
-                  If the ticket price is a barrier, please reach out to Max at
-                  <strong> 603-494-0576</strong>. We want you there! Discounts are
-                  available for anyone willing to lend a hand.
+                  If the ticket price is a barrier, please reach out — we want you
+                  there! Discounts are available for anyone willing to lend a hand.
                   <br />
                   <br />
                   And as always: invite your friends. The whole point of this is to
