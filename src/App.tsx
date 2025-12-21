@@ -4,8 +4,10 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/api/supabase'
 import GuestList from '@/components/GuestList'
 import MusicPlayer from '@/components/MusicPlayer'
+import RSVPBottomSheet from '@/components/RSVPBottomSheet'
 import RSVPForm from '@/components/RSVPForm'
 import ScrollArrow from '@/components/ScrollArrow'
+import StickyCTA from '@/components/StickyCTA'
 import type { Guest } from '@/types/LibraryRecordInterfaces'
 import { normalizePhone } from '@/utils/phone'
 
@@ -24,6 +26,7 @@ const App = () => {
   const [scrollY, setScrollY] = useState(0)
   const [viewportHeight, setViewportHeight] = useState(initialViewport)
   const [isMusicPlaying, setIsMusicPlaying] = useState(false)
+  const [rsvpIntent, setRsvpIntent] = useState<'going' | 'maybe' | null>(null)
 
   const currentGuest = useMemo(() => {
     if (!session) {
@@ -36,6 +39,26 @@ const App = () => {
       ) ?? null
     )
   }, [guests, session])
+
+  // Derive CTA label based on user state
+  const { ctaLabel, ctaSublabel } = useMemo(() => {
+    if (currentGuest && currentGuest.paid) {
+      return {
+        ctaLabel: "You're in ✓",
+        ctaSublabel: undefined,
+      }
+    }
+    if (session && !currentGuest) {
+      return {
+        ctaLabel: 'Finish RSVP',
+        ctaSublabel: 'Dec 31 · Greenpoint Loft',
+      }
+    }
+    return {
+      ctaLabel: 'RSVP',
+      ctaSublabel: 'Dec 31 · Greenpoint Loft',
+    }
+  }, [currentGuest, session])
 
   const fetchGuests = useCallback(async () => {
     setLoadingGuests(true)
@@ -112,12 +135,14 @@ const App = () => {
     return latestSession
   }, [])
 
-  const handleTogglePanel = useCallback(async () => {
+  const handleTogglePanel = useCallback(() => {
     if (activePanel === 'rsvp') {
       setActivePanel('closed')
+      setRsvpIntent(null) // Reset intent when closing
       return
     }
-    await ensureLatestSession()
+    // Fetch session in background, don't block the UI
+    ensureLatestSession()
     setActivePanel('rsvp')
   }, [activePanel, ensureLatestSession])
 
@@ -132,7 +157,15 @@ const App = () => {
   const handleRsvpChange = useCallback(async () => {
     await fetchGuests()
     setActivePanel('closed')
+    setRsvpIntent(null) // Reset intent on success
   }, [fetchGuests])
+
+  // Derive bottom sheet title based on intent
+  const rsvpSheetTitle = useMemo(() => {
+    if (rsvpIntent === 'going') return 'RSVP - Going'
+    if (rsvpIntent === 'maybe') return 'RSVP - Maybe'
+    return 'RSVP'
+  }, [rsvpIntent])
 
   const totalGuests = useMemo(
     () => guests.reduce((acc, guest) => acc + (guest.guest_count ?? 0), 0),
@@ -209,6 +242,34 @@ const App = () => {
     <main>
       <MusicPlayer onPlayStateChange={setIsMusicPlaying} />
       <ScrollArrow />
+
+      {/* Sticky CTA pill - always one thumb away */}
+      <StickyCTA
+        isOpen={activePanel === 'rsvp'}
+        label={ctaLabel}
+        sublabel={ctaSublabel}
+        onClick={handleTogglePanel}
+      />
+
+      {/* Bottom sheet for RSVP flow */}
+      <RSVPBottomSheet
+        isOpen={activePanel === 'rsvp'}
+        onClose={() => {
+          setActivePanel('closed')
+          setRsvpIntent(null)
+        }}
+        onBack={rsvpIntent ? () => setRsvpIntent(null) : undefined}
+        title={rsvpSheetTitle}
+      >
+        <RSVPForm
+          guest={currentGuest}
+          sessionPhone={normalizePhone(session?.user.phone ?? '')}
+          onSuccess={handleRsvpChange}
+          onDelete={handleRsvpChange}
+          onIntentChange={setRsvpIntent}
+          parentIntent={rsvpIntent}
+        />
+      </RSVPBottomSheet>
 
       <div className="hero">
         <div className={`small-text ${onOrange ? 'on-orange' : ''}`}>
@@ -420,25 +481,16 @@ const App = () => {
             }`}
             onClick={handleTogglePanel}
           >
-            {activePanel === 'closed' ? 'RSVP' : 'Close'}
+            {currentGuest?.paid ? 'Edit RSVP' : 'RSVP'}
           </button>
 
           <div className="third-section-right-content">
-            {activePanel === 'rsvp' ? (
-              <RSVPForm
-                guest={currentGuest}
-                sessionPhone={normalizePhone(session?.user.phone ?? '')}
-                onSuccess={handleRsvpChange}
-                onDelete={handleRsvpChange}
-              />
-            ) : (
-              <GuestList
-                guests={guests}
-                isLoading={loadingGuests}
-                currentUserPhone={normalizePhone(session?.user.phone ?? null)}
-                onEdit={handleInlineEdit}
-              />
-            )}
+            <GuestList
+              guests={guests}
+              isLoading={loadingGuests}
+              currentUserPhone={normalizePhone(session?.user.phone ?? null)}
+              onEdit={handleInlineEdit}
+            />
           </div>
         </div>
       </section>

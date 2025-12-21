@@ -9,9 +9,12 @@ interface RSVPFormProps {
   sessionPhone?: string | null
   onSuccess: () => Promise<void> | void
   onDelete?: () => Promise<void> | void
+  onIntentChange?: (intent: 'going' | 'maybe' | null) => void
+  parentIntent?: 'going' | 'maybe' | null // Used to sync when parent resets intent
 }
 
-type Step = 'login' | 'otp' | 'details' | 'payment' | 'confirm'
+type Intent = 'going' | 'maybe' | null
+type Step = 'intent' | 'login' | 'otp' | 'details' | 'payment' | 'confirm' | 'success'
 
 type GuestPayload = {
   name: string
@@ -20,6 +23,7 @@ type GuestPayload = {
   paid: boolean
   verified: boolean
   phone: string
+  status?: 'going' | 'maybe'
 }
 
 const VENMO_HANDLE = 'maxheald'
@@ -93,9 +97,21 @@ const stripCountryCode = (phone: string, code: string) => {
 
 import CountrySelect from './CountrySelect'
 
-const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) => {
+const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete, onIntentChange, parentIntent }: RSVPFormProps) => {
   const hasSession = Boolean(sessionPhone)
-  const [step, setStep] = useState<Step>(hasSession ? 'details' : 'login')
+  
+  // Determine initial step based on existing guest state
+  const getInitialStep = (): Step => {
+    if (guest) {
+      // Existing guest - go to details to edit
+      return 'details'
+    }
+    // New user (even with session) - start with intent
+    return 'intent'
+  }
+  
+  const [step, setStep] = useState<Step>(getInitialStep())
+  const [intent, setIntent] = useState<Intent>(guest?.paid ? 'going' : null)
   const defaultCode = hasSession ? getCountryCodeForPhone(sessionPhone ?? '') : '+1'
   const [countryCode, setCountryCode] = useState(defaultCode)
   const [localPhone, setLocalPhone] = useState(
@@ -112,6 +128,25 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
   const [loading, setLoading] = useState(false)
   const [consentChecked, setConsentChecked] = useState(false)
   const [guestExists, setGuestExists] = useState(Boolean(guest))
+
+  // Reset to appropriate step when guest prop changes
+  useEffect(() => {
+    if (guest) {
+      setStep('details')
+      setIntent(guest.paid ? 'going' : 'maybe')
+    } else {
+      setStep('intent')
+      setIntent(null)
+    }
+  }, [guest?.phone]) // Only run when guest identity changes
+
+  // Sync with parent intent - when parent resets to null, go back to intent step
+  useEffect(() => {
+    if (parentIntent === null && intent !== null) {
+      setStep('intent')
+      setIntent(null)
+    }
+  }, [parentIntent]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const isValidEmail = useMemo(() => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -200,14 +235,17 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
       setCountryCode(code)
       setLocalPhone(stripCountryCode(normalized, code))
       setVerifiedPhone(sessionPhone)
+      // Only advance from login/otp to details, preserve intent step
       setStep((prev) =>
         prev === 'login' || prev === 'otp' ? 'details' : prev,
       )
     }
-    if (!sessionPhone && !verifiedPhone) {
+    // Only reset to login if we lost session and we're past the auth flow
+    // Don't reset if we're on intent or otp (otp is an expected pre-auth state)
+    if (!sessionPhone && !verifiedPhone && step !== 'intent' && step !== 'otp') {
       setStep('login')
     }
-  }, [sessionPhone, verifiedPhone])
+  }, [sessionPhone, verifiedPhone, step])
 
   const handleSendOtp = async () => {
     if (!canSendCode) {
@@ -321,7 +359,7 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
     }
   }
 
-  const handleFinalizeRsvp = async () => {
+  const handleFinalizeRsvp = async (asMaybe = false) => {
     if (!verifiedPhone) {
       setError('Verify your number first.')
       return
@@ -331,9 +369,10 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
       name: formValues.name.trim(),
       email: formValues.email.trim(),
       guest_count: formValues.guestCount,
-      paid: true,
+      paid: !asMaybe, // Maybe = not paid yet
       verified: true,
       phone: verifiedPhone,
+      status: asMaybe ? 'maybe' : 'going',
     }
 
     setLoading(true)
@@ -349,7 +388,7 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
 
     setLoading(false)
     setGuestExists(true)
-    await onSuccess()
+    setStep('success')
   }
 
   const handleDelete = async () => {
@@ -411,6 +450,44 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
 
   return (
     <div className="rsvp-form-container">
+      {step === 'intent' && (
+        <div className="intent-step">
+          <p className="verification-text" style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+            Are you coming to the gala?
+          </p>
+          <div className="intent-buttons">
+            <button
+              type="button"
+              className="intent-button going"
+              onClick={() => {
+                setIntent('going')
+                onIntentChange?.('going')
+                // Skip login if already verified (check verifiedPhone too for robustness)
+                setStep(verifiedPhone ? 'details' : 'login')
+              }}
+            >
+              <span className="intent-emoji">🎉</span>
+              <span className="intent-label">I'm going!</span>
+              <span className="intent-sublabel">Let's do this</span>
+            </button>
+            <button
+              type="button"
+              className="intent-button maybe"
+              onClick={() => {
+                setIntent('maybe')
+                onIntentChange?.('maybe')
+                // Skip login if already verified (check verifiedPhone too for robustness)
+                setStep(verifiedPhone ? 'details' : 'login')
+              }}
+            >
+              <span className="intent-emoji">🤔</span>
+              <span className="intent-label">Maybe</span>
+              <span className="intent-sublabel">In, but tentatively</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {step === 'login' && (
         <>
           <div className="phone-input-row">
@@ -515,9 +592,7 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
         </div>
       )}
 
-      {(step === 'details' ||
-        step === 'payment' ||
-        step === 'confirm') && (
+      {step === 'details' && (
         <>
           <input
             type="text"
@@ -538,6 +613,31 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
 
           {renderGuestToggle()}
 
+          {/* Intent toggle - same style as guest count toggle */}
+          <div className="split-button-group">
+            <button
+              type="button"
+              className={`rsvp-split-button ${intent === 'going' ? 'selected' : ''}`}
+              onClick={() => {
+                setIntent('going')
+                onIntentChange?.('going')
+              }}
+            >
+              i'm going
+            </button>
+            <button
+              type="button"
+              className={`rsvp-split-button ${intent === 'maybe' ? 'selected' : ''}`}
+              onClick={() => {
+                setIntent('maybe')
+                onIntentChange?.('maybe')
+              }}
+            >
+              maybe
+            </button>
+          </div>
+
+          {/* Save button */}
           <button
             type="button"
             onClick={() => {
@@ -549,12 +649,22 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
                 setError('Verify your phone number first.')
                 return
               }
+              if (!intent) {
+                setError('Please select "i\'m going" or "maybe".')
+                return
+              }
               setError('')
-              setStep('payment')
+              
+              // If "maybe", save directly; if "going", go to payment
+              if (intent === 'maybe') {
+                handleFinalizeRsvp(true)
+              } else {
+                setStep('payment')
+              }
             }}
-            disabled={!profileIsValid || loading}
+            disabled={!profileIsValid || !intent || loading}
           >
-            {guestExists ? 'continue' : 'continue'}
+            {loading ? 'saving...' : 'save'}
           </button>
 
           {guestExists && (
@@ -603,13 +713,42 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete }: RSVPFormProps) =
           </p>
           <button
             type="button"
-            onClick={handleFinalizeRsvp}
+            onClick={() => handleFinalizeRsvp(false)}
             disabled={loading}
           >
             {loading ? 'saving...' : 'yes, I promise'}
           </button>
           <button type="button" className="text-link" onClick={() => setStep('payment')}>
             go back
+          </button>
+        </div>
+      )}
+
+      {step === 'success' && (
+        <div className="success-step">
+          {intent === 'maybe' ? (
+            <>
+              <div className="success-emoji">🤔</div>
+              <p className="success-title">You're on the maybe list</p>
+              <p className="success-subtitle">
+                We've saved your spot as tentative. You can come back anytime to confirm and pay.
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="success-emoji">🎉</div>
+              <p className="success-title">You're in!</p>
+              <p className="success-subtitle">
+                See you on New Year's Eve at the Greenpoint Loft. Black tie optional but encouraged!
+              </p>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={onSuccess}
+            style={{ marginTop: '1rem' }}
+          >
+            done
           </button>
         </div>
       )}

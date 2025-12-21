@@ -1,4 +1,8 @@
+import { useMemo, useState } from 'react'
+
 import type { Guest } from '@/types/LibraryRecordInterfaces'
+
+type FilterTab = 'all' | 'going' | 'maybe'
 
 interface GuestListProps {
   guests: Guest[]
@@ -13,6 +17,18 @@ const GuestList = ({
   currentUserPhone,
   onEdit,
 }: GuestListProps) => {
+  const [activeTab, setActiveTab] = useState<FilterTab>('all')
+
+  // Filter guests based on active tab
+  const filteredGuests = useMemo(() => {
+    if (activeTab === 'going') return guests.filter((g) => g.paid)
+    if (activeTab === 'maybe') return guests.filter((g) => !g.paid)
+    return guests
+  }, [guests, activeTab])
+
+  // Check if there are any maybe guests (to show/hide the tab)
+  const hasMaybeGuests = useMemo(() => guests.some((g) => !g.paid), [guests])
+
   if (isLoading) {
     return (
       <div className="guest-list-container">
@@ -25,8 +41,36 @@ const GuestList = ({
   return (
     <div className="guest-list-container">
       <h3 className="guest-list-header">Guests</h3>
+      
+      {/* Filter tabs */}
+      <div className="guest-list-tabs">
+        <button
+          type="button"
+          className={`guest-tab ${activeTab === 'all' ? 'active' : ''}`}
+          onClick={() => setActiveTab('all')}
+        >
+          All
+        </button>
+        <button
+          type="button"
+          className={`guest-tab ${activeTab === 'going' ? 'active' : ''}`}
+          onClick={() => setActiveTab('going')}
+        >
+          Going
+        </button>
+        {hasMaybeGuests && (
+          <button
+            type="button"
+            className={`guest-tab ${activeTab === 'maybe' ? 'active' : ''}`}
+            onClick={() => setActiveTab('maybe')}
+          >
+            Maybe
+          </button>
+        )}
+      </div>
+
       <ul className="guest-list-items">
-        {guests.map((guest) => {
+        {filteredGuests.map((guest) => {
           const isCurrentUser = guest.phone === currentUserPhone
           return (
             <li key={`${guest.phone}-${guest.name}`}>

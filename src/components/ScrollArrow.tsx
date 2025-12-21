@@ -36,7 +36,8 @@ const ScrollArrow = () => {
     <div
       style={{
         position: 'fixed',
-        bottom: '2rem',
+        // Position above the sticky RSVP pill (pill is ~60px + 20px safe area + margin)
+        bottom: 'calc(100px + env(safe-area-inset-bottom))',
         left: '50%',
         transform: 'translateX(-50%)',
         opacity: visible ? 1 : 0,
@@ -44,13 +45,7 @@ const ScrollArrow = () => {
         pointerEvents: 'none',
         zIndex: 90,
         animation,
-        color: '#000' // Default to black for contrast on orange/white? Wait, first page is white with orange text? No, hero has white background?
-        // Let's check: Hero is on white or orange?
-        // App.tsx: <div className="hero">...</div>
-        // onOrange logic implies it starts on something else.
-        // The "white-section" starts at top:0 and transforms UP.
-        // So the initial background is WHITE.
-        // So the arrow should be ORANGE (to match the text "the gala").
+        color: '#000'
       }}
       className="scroll-arrow"
     >
