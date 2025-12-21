@@ -23,7 +23,6 @@ type GuestPayload = {
   paid: boolean
   verified: boolean
   phone: string
-  status?: 'going' | 'maybe'
 }
 
 const VENMO_HANDLE = 'maxheald'
@@ -372,7 +371,7 @@ const RSVPForm = ({ guest, sessionPhone, onSuccess, onDelete, onIntentChange, pa
       paid: !asMaybe, // Maybe = not paid yet
       verified: true,
       phone: verifiedPhone,
-      status: asMaybe ? 'maybe' : 'going',
+      // Note: status column removed - using paid field to determine going vs maybe
     }
 
     setLoading(true)
