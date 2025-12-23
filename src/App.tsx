@@ -361,7 +361,7 @@ const App = () => {
               <div className="detail-text">
                 <span className="detail-label">venue</span>
                 <a
-                  href="https://www.greenpointloft.com"
+                  href="https://www.instagram.com/greenpoint_loft/"
                   target="_blank"
                   rel="noreferrer"
                   className="detail-link"
