@@ -458,6 +458,7 @@ const App = () => {
                     <span className="pricing-separator" />
                     <span className="pricing-amount">$185</span>
                   </div>
+                  <div className="tickets-remaining">{spotsRemaining} tickets left</div>
                 </div>
                 <p className="ticket-barrier-subtext">
                   If the ticket price is a barrier, please reach out — we want you

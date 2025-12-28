@@ -579,6 +579,15 @@ select:focus {
   font-weight: bold;
 }
 
+.tickets-remaining {
+  font-family: "Nagbuloe", serif;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: right;
+  margin-top: 0.4rem;
+  letter-spacing: 0.02em;
+}
+
 .detail-label {
   font-family: "Nagbuloe", serif;
   font-size: 0.68rem;
