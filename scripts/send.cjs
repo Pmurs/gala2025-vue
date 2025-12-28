@@ -31,11 +31,11 @@ const supabase = createClient(
 // ============================================
 
 // TEST MODE: Set to true to only send to test number
-const TEST_MODE = true;
+const TEST_MODE = false;
 const TEST_NUMBER = '+16034941235';
 
 // The message to send
-const MESSAGE = "Hey, this is a GALA Team text blast test.";
+const MESSAGE = "hey everybody! as we gear up for new years week, we wanted to send a final reminder that ticket prices rise to $185 tonight at midnight. we're closing in on venue capacity so if you have groups of friends planning to RSVP, let us know. can't wait to see you all on weds!";
 
 // ============================================
 
@@ -60,22 +60,29 @@ async function sendBlast() {
     console.log(`📱 Sending to ${numbers.length} guests`);
   }
 
-  const bindings = numbers.map(num =>
-    JSON.stringify({ binding_type: 'sms', address: num })
-  );
+  const TWILIO_PHONE_NUMBER = '+18333026946';
+  let successCount = 0;
+  let failedCount = 0;
 
-  try {
-    const notification = await twilio.notify
-      .services(process.env.TWILIO_NOTIFY_SID)
-      .notifications.create({
-        toBinding: bindings,
-        body: MESSAGE
+  for (const num of numbers) {
+    try {
+      const message = await twilio.messages.create({
+        to: num,
+        from: TWILIO_PHONE_NUMBER,
+        body: MESSAGE,
       });
-
-    console.log('✅ Sent! SID:', notification.sid);
-  } catch (err) {
-    console.error('❌ Error:', err.message);
+      console.log(`✅ ${num} - ${message.sid}`);
+      successCount++;
+    } catch (err) {
+      console.error(`❌ ${num} : ${err.message}`);
+      failedCount++;
+    }
   }
+
+  console.log('=============================');
+  console.log(`✅ Sent: ${successCount}`);
+  console.log(`❌ Failed: ${failedCount}`);
+  console.log(`📱 Total: ${numbers.length}`);
 }
 
 sendBlast();

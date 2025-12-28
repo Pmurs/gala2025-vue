@@ -448,10 +448,10 @@ const App = () => {
                     <span className="pricing-separator" />
                     <span className="pricing-amount">SOLD OUT</span>
                   </div>
-                  <div className="pricing-tier">
+                  <div className="pricing-tier past">
                     <span className="pricing-date">Through Dec 27</span>
                     <span className="pricing-separator" />
-                    <span className="pricing-amount">$160</span>
+                    <span className="pricing-amount">SOLD OUT</span>
                   </div>
                   <div className="pricing-tier">
                     <span className="pricing-date">Last-minute</span>
