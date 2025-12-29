@@ -13,7 +13,7 @@ import { normalizePhone } from '@/utils/phone'
 
 type ActivePanel = 'closed' | 'rsvp'
 
-const RSVP_CAPACITY = 98
+const RSVP_CAPACITY = 101
 
 const initialViewport =
   typeof window !== 'undefined' ? window.innerHeight : 0
