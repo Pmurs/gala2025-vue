@@ -31,11 +31,16 @@ const supabase = createClient(
 // ============================================
 
 // TEST MODE: Set to true to only send to test number
-const TEST_MODE = false;
-const TEST_NUMBER = '+16034941235';
+const TEST_MODE = true;
+const TEST_NUMBER = '+16034940576';
+
+// OPT-OUT LIST: Numbers that requested to stop receiving messages
+const OPT_OUT_LIST = [
+  '+18579957737', // Sharon - replied "Stop" on 12/27
+];
 
 // The message to send
-const MESSAGE = "hey everybody! as we gear up for new years week, we wanted to send a final reminder that ticket prices rise to $185 tonight at midnight. we're closing in on venue capacity so if you have groups of friends planning to RSVP, let us know. can't wait to see you all on weds!";
+const MESSAGE = "happy monday from team gala! a final heads up that we've got just under 20 tickets remaining. we'll send one more update with logistics day-of, so stay tuned.";
 
 // ============================================
 
@@ -56,8 +61,8 @@ async function sendBlast() {
       return;
     }
 
-    numbers = guests.map(g => g.phone).filter(Boolean);
-    console.log(`📱 Sending to ${numbers.length} guests`);
+    numbers = guests.map(g => g.phone).filter(Boolean).filter(num => !OPT_OUT_LIST.includes(num));
+    console.log(`📱 Sending to ${numbers.length} guests (${OPT_OUT_LIST.length} opted out)`);
   }
 
   const TWILIO_PHONE_NUMBER = '+18333026946';

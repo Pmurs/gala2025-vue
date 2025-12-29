@@ -13,7 +13,7 @@ import { normalizePhone } from '@/utils/phone'
 
 type ActivePanel = 'closed' | 'rsvp'
 
-const RSVP_CAPACITY = 101
+const RSVP_CAPACITY = 191
 
 const initialViewport =
   typeof window !== 'undefined' ? window.innerHeight : 0
@@ -171,7 +171,7 @@ const App = () => {
     () => guests.reduce((acc, guest) => acc + (guest.guest_count ?? 0), 0),
     [guests],
   )
-  const spotsRemaining = Math.max(RSVP_CAPACITY - Math.floor(totalGuests / 2), 0)
+  const spotsRemaining = Math.max(RSVP_CAPACITY - totalGuests, 0)
 
   const onOrange = scrollY >= viewportHeight
   const whiteSectionY = Math.max(
