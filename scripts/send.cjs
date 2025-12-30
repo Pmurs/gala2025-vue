@@ -31,7 +31,7 @@ const supabase = createClient(
 // ============================================
 
 // TEST MODE: Set to true to only send to test number
-const TEST_MODE = true;
+const TEST_MODE = false;
 const TEST_NUMBER = '+16034940576';
 
 // OPT-OUT LIST: Numbers that requested to stop receiving messages
