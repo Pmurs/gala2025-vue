@@ -15,6 +15,10 @@ type ActivePanel = 'closed' | 'rsvp'
 
 const RSVP_CAPACITY = 197
 
+// Online tickets pool - every 2 RSVPs = 1 ticket consumed
+// With 120 paid RSVPs currently: 68 - floor(120/2) = 68 - 60 = 8 tickets shown
+const ONLINE_TICKET_POOL = 68
+
 const initialViewport =
   typeof window !== 'undefined' ? window.innerHeight : 0
 
@@ -172,6 +176,13 @@ const App = () => {
     [guests],
   )
   const spotsRemaining = Math.max(RSVP_CAPACITY - totalGuests, 0)
+
+  // Count paid RSVPs - every 2 RSVPs = 1 ticket consumed (placebo effect)
+  const paidRsvpCount = useMemo(
+    () => guests.filter((g) => g.paid).length,
+    [guests],
+  )
+  const ticketsRemaining = Math.max(0, ONLINE_TICKET_POOL - Math.floor(paidRsvpCount / 2))
 
   const onOrange = scrollY >= viewportHeight
   const whiteSectionY = Math.max(
@@ -458,7 +469,7 @@ const App = () => {
                     <span className="pricing-separator" />
                     <span className="pricing-amount">$185</span>
                   </div>
-                  <div className="tickets-remaining">{spotsRemaining} tickets left</div>
+                  <div className="tickets-remaining">{ticketsRemaining} tickets left</div>
                 </div>
                 <p className="ticket-barrier-subtext">
                   If the ticket price is a barrier, please reach out — we want you
